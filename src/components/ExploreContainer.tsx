@@ -43,7 +43,7 @@ const ExploreContainer: React.FC = () => {
             <IonButtons slot="start">
               <IonButton onClick={() => modal.current?.dismiss()}>Cancel</IonButton>
             </IonButtons>
-            <IonTitle>Welcome</IonTitle>
+            <IonTitle>Welcome Page</IonTitle>
             <IonButtons slot="end">
               <IonButton strong={true} onClick={() => confirm()}>
                 Confirm
