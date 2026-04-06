@@ -128,13 +128,15 @@ export async function getDeviceMaintenanceHistory(deviceId: number): Promise<Mai
 // Log maintenance
 export async function logMaintenance(
   deviceId: number, 
-  userId: number, 
+  userId: number | string, 
   data: MaintenanceLogData
 ): Promise<boolean> {
   if (!supabase) {
     console.log('Mock: Logging maintenance', { deviceId, userId, data });
     return true;
   }
+
+  const userIdStr = String(userId);
 
   // Update device status to maintenance
   const { error: updateError } = await supabase
@@ -152,7 +154,7 @@ export async function logMaintenance(
     .from('maintenance_logs')
     .insert({
       device_id: deviceId,
-      performed_by: userId,
+      performed_by: userIdStr,
       maintenance_type: data.maintenance_type,
       notes: data.notes,
       damage_level: data.damage_level,

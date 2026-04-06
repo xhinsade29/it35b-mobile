@@ -20,7 +20,7 @@ interface DeviceWithDetails extends Device {
 
 interface DeviceCardProps {
   device: DeviceWithDetails;
-  userId: number;
+  userId: number | string;
   onStatusChange: (deviceId: number, status: string) => void;
   onMaintenanceLog: (deviceId: number, data: MaintenanceFormData) => void;
 }
@@ -374,11 +374,11 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
 };
 
 interface DeviceManagementProps {
-  userId?: number;
+  userId?: number | string;
   userName?: string;
 }
 
-const DeviceManagement: React.FC<DeviceManagementProps> = ({ userId = 1, userName = 'Operator' }) => {
+const DeviceManagement: React.FC<DeviceManagementProps> = ({ userId = '00000000-0000-0000-0000-000000000001', userName = 'Operator' }) => {
   const [devices, setDevices] = useState<DeviceWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
 

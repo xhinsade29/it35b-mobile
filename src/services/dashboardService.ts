@@ -65,17 +65,19 @@ export async function getActiveAlerts(): Promise<Alert[]> {
 }
 
 // Acknowledge a single alert
-export async function acknowledgeAlert(alertId: number, userId: number): Promise<boolean> {
+export async function acknowledgeAlert(alertId: number, userId: number | string): Promise<boolean> {
   if (!supabase) {
     console.log('Mock: Acknowledging alert', alertId);
     return true;
   }
   
+  const userIdStr = String(userId);
+  
   const { error } = await supabase
     .from('alerts')
     .update({
       status: 'resolved',
-      resolved_by: userId,
+      resolved_by: userIdStr,
       resolved_at: new Date().toISOString()
     })
     .eq('alert_id', alertId);
@@ -89,11 +91,13 @@ export async function acknowledgeAlert(alertId: number, userId: number): Promise
 }
 
 // Acknowledge all active alerts
-export async function acknowledgeAllAlerts(userId: number): Promise<number> {
+export async function acknowledgeAllAlerts(userId: number | string): Promise<number> {
   if (!supabase) {
     console.log('Mock: Acknowledging all alerts');
     return 5; // Mock count
   }
+  
+  const userIdStr = String(userId);
   
   const { data: alerts, error: fetchError } = await supabase
     .from('alerts')
@@ -113,7 +117,7 @@ export async function acknowledgeAllAlerts(userId: number): Promise<number> {
     .from('alerts')
     .update({
       status: 'resolved',
-      resolved_by: userId,
+      resolved_by: userIdStr,
       resolved_at: new Date().toISOString()
     })
     .in('alert_id', alertIds);
@@ -303,18 +307,21 @@ export async function getOperationalStats(): Promise<OperationalStats> {
 }
 
 // Fetch operator's personal stats
-export async function getOperatorStats(userId: number): Promise<OperatorStats> {
+export async function getOperatorStats(userId: number | string): Promise<OperatorStats> {
   if (!supabase) {
     console.log('Using mock operator stats data');
     return mockFetch(mockMyStats);
   }
+  
+  // Convert userId to string for UUID compatibility
+  const userIdStr = String(userId);
   
   // Alerts resolved today
   const today = new Date().toISOString().split('T')[0];
   const { count: alertsToday, error: alertsTodayError } = await supabase
     .from('alerts')
     .select('*', { count: 'exact', head: true })
-    .eq('resolved_by', userId)
+    .eq('resolved_by', userIdStr)
     .gte('resolved_at', today);
 
   if (alertsTodayError) {
@@ -325,7 +332,7 @@ export async function getOperatorStats(userId: number): Promise<OperatorStats> {
   const { count: alertsTotal, error: alertsTotalError } = await supabase
     .from('alerts')
     .select('*', { count: 'exact', head: true })
-    .eq('resolved_by', userId);
+    .eq('resolved_by', userIdStr);
 
   if (alertsTotalError) {
     console.error('Error fetching total alerts:', alertsTotalError);
@@ -335,7 +342,7 @@ export async function getOperatorStats(userId: number): Promise<OperatorStats> {
   const { count: maintenanceToday, error: maintTodayError } = await supabase
     .from('maintenance_logs')
     .select('*', { count: 'exact', head: true })
-    .eq('performed_by', userId)
+    .eq('performed_by', userIdStr)
     .gte('performed_at', today);
 
   if (maintTodayError) {
@@ -346,7 +353,7 @@ export async function getOperatorStats(userId: number): Promise<OperatorStats> {
   const { count: maintenanceTotal, error: maintTotalError } = await supabase
     .from('maintenance_logs')
     .select('*', { count: 'exact', head: true })
-    .eq('performed_by', userId);
+    .eq('performed_by', userIdStr);
 
   if (maintTotalError) {
     console.error('Error fetching total maintenance:', maintTotalError);
@@ -361,11 +368,14 @@ export async function getOperatorStats(userId: number): Promise<OperatorStats> {
 }
 
 // Fetch operator's activity history
-export async function getMyActivityHistory(userId: number, limit: number = 10): Promise<ActivityItem[]> {
+export async function getMyActivityHistory(userId: number | string, limit: number = 10): Promise<ActivityItem[]> {
   if (!supabase) {
     console.log('Using mock activity data');
     return mockFetch(mockActivity);
   }
+  
+  // Convert userId to string for UUID compatibility
+  const userIdStr = String(userId);
   
   // Get resolved alerts
   const { data: alerts, error: alertsError } = await supabase
@@ -381,7 +391,7 @@ export async function getMyActivityHistory(userId: number, limit: number = 10): 
         )
       )
     `)
-    .eq('resolved_by', userId)
+    .eq('resolved_by', userIdStr)
     .not('resolved_at', 'is', null)
     .order('resolved_at', { ascending: false })
     .limit(limit);
@@ -402,7 +412,7 @@ export async function getMyActivityHistory(userId: number, limit: number = 10): 
         device_name
       )
     `)
-    .eq('performed_by', userId)
+    .eq('performed_by', userIdStr)
     .order('performed_at', { ascending: false })
     .limit(limit);
 

@@ -11,9 +11,9 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (currentPage) {
       case 'operator-dashboard':
-        return <Dashboard userName={userName} userRole={userRole} userId={1} />;
+        return <Dashboard userName={userName} userRole={userRole} userId="00000000-0000-0000-0000-000000000001" />;
       case 'devices':
-        return <DeviceManagement userId={1} userName={userName} />;
+        return <DeviceManagement userId="00000000-0000-0000-0000-000000000001" userName={userName} />;
       case 'activity':
         return (
           <div style={{ marginLeft: '240px', padding: '40px' }}>
@@ -22,7 +22,7 @@ const App: React.FC = () => {
           </div>
         );
       default:
-        return <Dashboard userName={userName} userRole={userRole} userId={1} />;
+        return <Dashboard userName={userName} userRole={userRole} userId="00000000-0000-0000-0000-000000000001" />;
     }
   };
 

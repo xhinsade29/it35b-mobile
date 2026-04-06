@@ -295,13 +295,13 @@ const ActivityItemComponent: React.FC<ActivityItemProps> = ({ activity }) => {
 interface DashboardProps {
   userName?: string;
   userRole?: string;
-  userId?: number;
+  userId?: number | string;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ 
   userName = 'Operator', 
   userRole = 'operator',
-  userId = 1 
+  userId = '00000000-0000-0000-0000-000000000001'
 }) => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [devices, setDevices] = useState<Device[]>([]);
