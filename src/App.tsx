@@ -38,7 +38,7 @@ const App: React.FC = () => {
         userRole={userRole}
         onNavigate={setCurrentPage}
       />
-      <main style={{ flex: 1, minHeight: '100vh' }}>
+      <main style={{ flex: 1, minHeight: '100vh', marginLeft: '240px' }}>
         {renderContent()}
       </main>
     </div>
