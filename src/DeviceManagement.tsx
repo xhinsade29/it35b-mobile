@@ -389,7 +389,9 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({ userId = '00000000-
   const loadDevices = async () => {
     setLoading(true);
     try {
+      console.log('DeviceManagement: Fetching devices...');
       const devicesData = await getDevicesWithStatus();
+      console.log('DeviceManagement: Fetched devices:', devicesData.length);
       
       // Load maintenance history for each device
       const devicesWithHistory = await Promise.all(

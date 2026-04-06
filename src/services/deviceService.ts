@@ -26,6 +26,9 @@ export async function getDevicesWithStatus(): Promise<Device[]> {
     return mockFetch(mockDevices);
   }
 
+  console.log('Fetching devices from Supabase...');
+
+  // Simpler query without nested alerts join
   const { data, error } = await supabase
     .from('devices')
     .select(`
@@ -41,11 +44,6 @@ export async function getDevicesWithStatus(): Promise<Device[]> {
       sensors (
         sensor_id,
         sensor_type
-      ),
-      alerts:sensors!inner (
-        alerts!inner (
-          alert_id
-        )
       )
     `)
     .order('device_name');
@@ -55,11 +53,15 @@ export async function getDevicesWithStatus(): Promise<Device[]> {
     return [];
   }
 
-  return data?.map((device: any) => {
-    const alertCount = device.alerts?.reduce((acc: number, sensor: any) => {
-      return acc + (sensor.alerts?.length || 0);
-    }, 0) || 0;
+  console.log('Devices fetched:', data?.length || 0);
 
+  // Get alert counts separately
+  const devicesWithAlerts = await Promise.all((data || []).map(async (device: any) => {
+    const { count } = await supabase
+      .from('alerts')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'active');
+    
     return {
       device_id: device.device_id,
       device_name: device.device_name,
@@ -69,10 +71,12 @@ export async function getDevicesWithStatus(): Promise<Device[]> {
       location_name: device.locations?.location_name || 'Unknown',
       river_section: device.locations?.river_section || 'Unknown',
       sensor_count: device.sensors?.length || 0,
-      alert_count: alertCount,
+      alert_count: count || 0,
       sensors: device.sensors || []
     };
-  }) || [];
+  }));
+
+  return devicesWithAlerts;
 }
 
 // Get device maintenance history
