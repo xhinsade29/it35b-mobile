@@ -2,12 +2,14 @@ interface SidebarProps {
   currentPage?: string;
   userName?: string;
   userRole?: string;
+  onNavigate?: (page: string) => void;
 }
 
 const OperatorSidebar: React.FC<SidebarProps> = ({
   currentPage = 'operator-dashboard',
   userName = 'Operator',
-  userRole = 'operator'
+  userRole = 'operator',
+  onNavigate
 }) => {
   const logoSrc = '/logo.png';
 
@@ -53,8 +55,12 @@ const OperatorSidebar: React.FC<SidebarProps> = ({
     }
   ];
 
-  const handleNavClick = (href: string) => {
-    console.log('Navigate to:', href);
+  const handleNavClick = (id: string, href: string) => {
+    if (onNavigate) {
+      onNavigate(id);
+    } else {
+      console.log('Navigate to:', href);
+    }
   };
 
   const handleLogout = () => {
@@ -354,7 +360,7 @@ const OperatorSidebar: React.FC<SidebarProps> = ({
             <div
               key={item.id}
               className={`av-nav-item ${currentPage === item.id ? 'active' : ''}`}
-              onClick={() => handleNavClick(item.href)}
+              onClick={() => handleNavClick(item.id, item.href)}
               role="button"
               tabIndex={0}
               aria-current={currentPage === item.id ? 'page' : undefined}
