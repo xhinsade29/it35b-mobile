@@ -14,6 +14,27 @@ export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
 
+// Test connection
+export async function testSupabaseConnection(): Promise<boolean> {
+  if (!supabase) {
+    console.log('Supabase not configured');
+    return false;
+  }
+  
+  try {
+    const { data, error } = await supabase.from('devices').select('count', { count: 'exact', head: true });
+    if (error) {
+      console.error('Supabase connection test failed:', error);
+      return false;
+    }
+    console.log('✅ Supabase connected successfully');
+    return true;
+  } catch (err) {
+    console.error('Supabase connection error:', err);
+    return false;
+  }
+}
+
 export type Tables = {
   users: {
     user_id: number;

@@ -1,5 +1,15 @@
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import { testSupabaseConnection } from './lib/supabase';
+
+// Test Supabase connection on startup
+testSupabaseConnection().then((connected) => {
+  if (connected) {
+    console.log('🚀 App ready with live database connection');
+  } else {
+    console.log('📦 App running with mock data');
+  }
+});
 
 const container = document.getElementById('root');
 if (!container) {
