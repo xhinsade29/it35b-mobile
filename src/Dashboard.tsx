@@ -316,8 +316,10 @@ const Dashboard: React.FC<DashboardProps> = ({
   }, []);
 
   const loadData = async () => {
+    console.log('Dashboard: Starting to load data...');
     setLoading(true);
     try {
+      console.log('Dashboard: Fetching from Supabase...');
       const [alertsData, devicesData, readingsData, statsData, myStatsData, activityData] = await Promise.all([
         getActiveAlerts(),
         getDevicesWithStatus(),
@@ -326,6 +328,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         getOperatorStats(userId),
         getMyActivityHistory(userId, 10)
       ]);
+      console.log('Dashboard: Data fetched successfully', { alerts: alertsData.length, devices: devicesData.length });
 
       setAlerts(alertsData);
       setDevices(devicesData);

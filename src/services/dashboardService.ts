@@ -1,8 +1,22 @@
 import { supabase } from '../lib/supabase';
 import type { Alert, Device, SensorReading, ActivityItem, OperationalStats, OperatorStats } from '../types/dashboard';
+import { 
+  mockAlerts, 
+  mockDevices, 
+  mockReadings, 
+  mockStats, 
+  mockMyStats, 
+  mockActivity,
+  mockFetch 
+} from '../utils/dashboard';
 
 // Fetch active alerts with device and location info
 export async function getActiveAlerts(): Promise<Alert[]> {
+  if (!supabase) {
+    console.log('Using mock alerts data');
+    return mockFetch(mockAlerts);
+  }
+  
   const { data, error } = await supabase
     .from('alerts')
     .select(`
@@ -52,6 +66,11 @@ export async function getActiveAlerts(): Promise<Alert[]> {
 
 // Acknowledge a single alert
 export async function acknowledgeAlert(alertId: number, userId: number): Promise<boolean> {
+  if (!supabase) {
+    console.log('Mock: Acknowledging alert', alertId);
+    return true;
+  }
+  
   const { error } = await supabase
     .from('alerts')
     .update({
@@ -71,6 +90,11 @@ export async function acknowledgeAlert(alertId: number, userId: number): Promise
 
 // Acknowledge all active alerts
 export async function acknowledgeAllAlerts(userId: number): Promise<number> {
+  if (!supabase) {
+    console.log('Mock: Acknowledging all alerts');
+    return 5; // Mock count
+  }
+  
   const { data: alerts, error: fetchError } = await supabase
     .from('alerts')
     .select('alert_id')
@@ -104,6 +128,11 @@ export async function acknowledgeAllAlerts(userId: number): Promise<number> {
 
 // Fetch devices with their status and sensor counts
 export async function getDevicesWithStatus(): Promise<Device[]> {
+  if (!supabase) {
+    console.log('Using mock devices data');
+    return mockFetch(mockDevices);
+  }
+  
   const { data, error } = await supabase
     .from('devices')
     .select(`
@@ -153,6 +182,11 @@ export async function getDevicesWithStatus(): Promise<Device[]> {
 
 // Fetch recent sensor readings
 export async function getRecentReadings(hours: number = 24): Promise<SensorReading[]> {
+  if (!supabase) {
+    console.log('Using mock readings data');
+    return mockFetch(mockReadings);
+  }
+  
   const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
   
   const { data, error } = await supabase
@@ -194,6 +228,11 @@ export async function getRecentReadings(hours: number = 24): Promise<SensorReadi
 
 // Fetch operational statistics
 export async function getOperationalStats(): Promise<OperationalStats> {
+  if (!supabase) {
+    console.log('Using mock stats data');
+    return mockFetch(mockStats);
+  }
+  
   // Device counts
   const { data: deviceStats, error: deviceError } = await supabase
     .from('devices')
@@ -265,6 +304,11 @@ export async function getOperationalStats(): Promise<OperationalStats> {
 
 // Fetch operator's personal stats
 export async function getOperatorStats(userId: number): Promise<OperatorStats> {
+  if (!supabase) {
+    console.log('Using mock operator stats data');
+    return mockFetch(mockMyStats);
+  }
+  
   // Alerts resolved today
   const today = new Date().toISOString().split('T')[0];
   const { count: alertsToday, error: alertsTodayError } = await supabase
@@ -318,6 +362,11 @@ export async function getOperatorStats(userId: number): Promise<OperatorStats> {
 
 // Fetch operator's activity history
 export async function getMyActivityHistory(userId: number, limit: number = 10): Promise<ActivityItem[]> {
+  if (!supabase) {
+    console.log('Using mock activity data');
+    return mockFetch(mockActivity);
+  }
+  
   // Get resolved alerts
   const { data: alerts, error: alertsError } = await supabase
     .from('alerts')
@@ -393,6 +442,11 @@ export async function getMyActivityHistory(userId: number, limit: number = 10): 
 
 // Subscribe to real-time alerts
 export function subscribeToAlerts(callback: (alert: Alert) => void) {
+  if (!supabase) {
+    console.log('Mock: Real-time subscriptions not available');
+    return { unsubscribe: () => {} };
+  }
+  
   return supabase
     .channel('alerts-channel')
     .on(
