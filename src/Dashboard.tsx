@@ -195,13 +195,13 @@ const DataRow: React.FC<DataRowProps> = ({ reading }) => {
 
   return (
     <tr style={{ transition: 'background 0.2s' }}>
-      <td style={{ padding: '12px 16px', borderBottom: '1px solid rgba(15,40,84,0.08)', fontSize: '13px', color: '#0F2854' }}>
+      <td style={{ padding: '12px 16px', borderBottom: '1px solid rgba(189,232,245,0.08)', fontSize: '13px', color: '#BDE8F5' }}>
         {formatDate(reading.recorded_at)}
       </td>
-      <td style={{ padding: '12px 16px', borderBottom: '1px solid rgba(15,40,84,0.08)', fontSize: '13px', color: '#0F2854' }}>
+      <td style={{ padding: '12px 16px', borderBottom: '1px solid rgba(189,232,245,0.08)', fontSize: '13px', color: '#BDE8F5' }}>
         {reading.device_name}
       </td>
-      <td style={{ padding: '12px 16px', borderBottom: '1px solid rgba(15,40,84,0.08)' }}>
+      <td style={{ padding: '12px 16px', borderBottom: '1px solid rgba(189,232,245,0.08)' }}>
         <span style={{
           padding: '2px 8px',
           borderRadius: '4px',
@@ -213,13 +213,13 @@ const DataRow: React.FC<DataRowProps> = ({ reading }) => {
           {reading.location_name || 'Unknown'}
         </span>
       </td>
-      <td style={{ padding: '12px 16px', borderBottom: '1px solid rgba(15,40,84,0.08)', fontSize: '13px', color: '#0F2854' }}>
+      <td style={{ padding: '12px 16px', borderBottom: '1px solid rgba(189,232,245,0.08)', fontSize: '13px', color: '#BDE8F5' }}>
         {capitalizeWords(reading.sensor_type)}
       </td>
-      <td style={{ padding: '12px 16px', borderBottom: '1px solid rgba(15,40,84,0.08)', fontSize: '13px', color: '#0F2854' }}>
+      <td style={{ padding: '12px 16px', borderBottom: '1px solid rgba(189,232,245,0.08)', fontSize: '13px', color: '#BDE8F5' }}>
         {reading.value.toFixed(2)} {reading.unit}
       </td>
-      <td style={{ padding: '12px 16px', borderBottom: '1px solid rgba(15,40,84,0.08)' }}>
+      <td style={{ padding: '12px 16px', borderBottom: '1px solid rgba(189,232,245,0.08)' }}>
         <span style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -245,8 +245,8 @@ interface ActivityItemProps {
 
 const ActivityItemComponent: React.FC<ActivityItemProps> = ({ activity }) => {
   const iconColors = activity.action_type === 'alert_resolved' 
-    ? { bg: '#dcfce7', color: '#16a34a' }
-    : { bg: '#fef3c7', color: '#d97706' };
+    ? { bg: 'rgba(22, 163, 74, 0.2)', color: '#16a34a' }
+    : { bg: 'rgba(217, 119, 6, 0.2)', color: '#d97706' };
 
   return (
     <div style={{
@@ -254,7 +254,7 @@ const ActivityItemComponent: React.FC<ActivityItemProps> = ({ activity }) => {
       alignItems: 'flex-start',
       gap: '12px',
       padding: '12px 20px',
-      borderBottom: '1px solid rgba(15,40,84,0.08)'
+      borderBottom: '1px solid rgba(189,232,245,0.08)'
     }}>
       <div style={{
         width: '36px',
@@ -271,15 +271,15 @@ const ActivityItemComponent: React.FC<ActivityItemProps> = ({ activity }) => {
         {activity.action_type === 'alert_resolved' ? '✓' : '🔧'}
       </div>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: '14px', fontWeight: 600, color: '#0F2854' }}>
+        <div style={{ fontSize: '14px', fontWeight: 600, color: '#BDE8F5' }}>
           {activity.action_type === 'alert_resolved' 
             ? 'Resolved Alert' 
             : `Maintenance: ${capitalizeWords(activity.maintenance_type || 'General')}`}
         </div>
-        <div style={{ fontSize: '13px', color: '#4a6080', marginTop: '4px' }}>
+        <div style={{ fontSize: '13px', color: 'rgba(189,232,245,0.7)', marginTop: '4px' }}>
           {activity.details}
         </div>
-        <div style={{ fontSize: '11px', color: '#8aa0bc', marginTop: '6px' }}>
+        <div style={{ fontSize: '11px', color: 'rgba(189,232,245,0.5)', marginTop: '6px' }}>
           📍 {activity.device_name} • 
           🕐 {formatDate(activity.action_time)}
         </div>
@@ -617,87 +617,79 @@ const Dashboard: React.FC<DashboardProps> = ({
           </div>
 
           {/* Recent Operational Data */}
-          <div style={{
-            background: '#fff',
-            borderRadius: '14px',
-            border: '1px solid rgba(15,40,84,0.08)',
-            overflow: 'hidden',
-            boxShadow: '0 2px 8px rgba(15,40,84,0.04)',
-            marginBottom: '24px'
-          }}>
-            <div style={{
+          <div className="av-glass-card" style={{ marginBottom: '24px' }}>
+            <div className="av-glass-header" style={{
               padding: '16px 20px',
-              borderBottom: '1px solid rgba(15,40,84,0.08)',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center'
             }}>
-              <span style={{ fontSize: '15px', fontWeight: 600, color: '#0F2854' }}>
+              <span style={{ fontSize: '15px', fontWeight: 600, color: '#BDE8F5' }}>
                 📊 Recent Operational Data (Last 24 Hours)
               </span>
-              <span style={{ fontSize: '12px', color: '#8aa0bc' }}>{readings.length} readings</span>
+              <span style={{ fontSize: '12px', color: 'rgba(189,232,245,0.5)' }}>{readings.length} readings</span>
             </div>
             <div style={{ maxHeight: '350px', overflowY: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr>
                     <th style={{ 
-                      background: '#f0f5fb', 
+                      background: 'rgba(189,232,245,0.1)', 
                       padding: '12px 16px', 
                       textAlign: 'left',
                       fontSize: '11px',
                       fontWeight: 600,
-                      color: '#4a6080',
+                      color: 'rgba(189,232,245,0.7)',
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px'
                     }}>Time</th>
                     <th style={{ 
-                      background: '#f0f5fb', 
+                      background: 'rgba(189,232,245,0.1)', 
                       padding: '12px 16px', 
                       textAlign: 'left',
                       fontSize: '11px',
                       fontWeight: 600,
-                      color: '#4a6080',
+                      color: 'rgba(189,232,245,0.7)',
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px'
                     }}>Device</th>
                     <th style={{ 
-                      background: '#f0f5fb', 
+                      background: 'rgba(189,232,245,0.1)', 
                       padding: '12px 16px', 
                       textAlign: 'left',
                       fontSize: '11px',
                       fontWeight: 600,
-                      color: '#4a6080',
+                      color: 'rgba(189,232,245,0.7)',
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px'
                     }}>Location</th>
                     <th style={{ 
-                      background: '#f0f5fb', 
+                      background: 'rgba(189,232,245,0.1)', 
                       padding: '12px 16px', 
                       textAlign: 'left',
                       fontSize: '11px',
                       fontWeight: 600,
-                      color: '#4a6080',
+                      color: 'rgba(189,232,245,0.7)',
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px'
                     }}>Sensor</th>
                     <th style={{ 
-                      background: '#f0f5fb', 
+                      background: 'rgba(189,232,245,0.1)', 
                       padding: '12px 16px', 
                       textAlign: 'left',
                       fontSize: '11px',
                       fontWeight: 600,
-                      color: '#4a6080',
+                      color: 'rgba(189,232,245,0.7)',
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px'
                     }}>Value</th>
                     <th style={{ 
-                      background: '#f0f5fb', 
+                      background: 'rgba(189,232,245,0.1)', 
                       padding: '12px 16px', 
                       textAlign: 'left',
                       fontSize: '11px',
                       fontWeight: 600,
-                      color: '#4a6080',
+                      color: 'rgba(189,232,245,0.7)',
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px'
                     }}>Status</th>
@@ -713,31 +705,24 @@ const Dashboard: React.FC<DashboardProps> = ({
           </div>
 
           {/* My Recent Activity */}
-          <div style={{
-            background: '#fff',
-            borderRadius: '14px',
-            border: '1px solid rgba(15,40,84,0.08)',
-            overflow: 'hidden',
-            boxShadow: '0 2px 8px rgba(15,40,84,0.04)'
-          }}>
-            <div style={{
+          <div className="av-glass-card">
+            <div className="av-glass-header" style={{
               padding: '16px 20px',
-              borderBottom: '1px solid rgba(15,40,84,0.08)',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center'
             }}>
-              <span style={{ fontSize: '15px', fontWeight: 600, color: '#0F2854' }}>
+              <span style={{ fontSize: '15px', fontWeight: 600, color: '#BDE8F5' }}>
                 👤 My Recent Activity
               </span>
-              <span style={{ fontSize: '12px', color: '#8aa0bc' }}>Your actions today</span>
+              <span style={{ fontSize: '12px', color: 'rgba(189,232,245,0.5)' }}>Your actions today</span>
             </div>
             <div style={{ maxHeight: '300px', overflowY: 'auto', padding: 0 }}>
               {activity.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px 20px' }}>
                   <div style={{ fontSize: '48px', marginBottom: '12px' }}>📋</div>
-                  <div style={{ fontSize: '16px', fontWeight: 600, color: '#0F2854' }}>No Recent Activity</div>
-                  <p style={{ color: '#8aa0bc', fontSize: '13px' }}>Start by acknowledging alerts or updating device status</p>
+                  <div style={{ fontSize: '16px', fontWeight: 600, color: '#BDE8F5' }}>No Recent Activity</div>
+                  <p style={{ color: 'rgba(189,232,245,0.5)', fontSize: '13px' }}>Start by acknowledging alerts or updating device status</p>
                 </div>
               ) : (
                 activity.map((item, index) => (
