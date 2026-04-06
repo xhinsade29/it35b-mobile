@@ -57,7 +57,7 @@ export async function getDevicesWithStatus(): Promise<Device[]> {
 
   // Get alert counts separately
   const devicesWithAlerts = await Promise.all((data || []).map(async (device: any) => {
-    const { count } = await supabase
+    const { count } = await supabase!
       .from('alerts')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'active');
