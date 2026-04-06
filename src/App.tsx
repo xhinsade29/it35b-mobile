@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import OperatorSidebar from './OperatorSidebar';
 import Dashboard from './Dashboard';
+import DeviceManagement from './DeviceManagement';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState('operator-dashboard');
@@ -12,12 +13,7 @@ const App: React.FC = () => {
       case 'operator-dashboard':
         return <Dashboard userName={userName} userRole={userRole} userId={1} />;
       case 'devices':
-        return (
-          <div style={{ marginLeft: '240px', padding: '40px' }}>
-            <h1>Devices Page</h1>
-            <p>Device management interface coming soon...</p>
-          </div>
-        );
+        return <DeviceManagement userId={1} userName={userName} />;
       case 'activity':
         return (
           <div style={{ marginLeft: '240px', padding: '40px' }}>
@@ -26,7 +22,7 @@ const App: React.FC = () => {
           </div>
         );
       default:
-        return <Dashboard userName={userName} userRole={userRole} />;
+        return <Dashboard userName={userName} userRole={userRole} userId={1} />;
     }
   };
 
