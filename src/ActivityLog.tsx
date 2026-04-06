@@ -99,15 +99,50 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+        
+        .av-activity {
+          font-family: 'DM Sans', sans-serif;
+          background: linear-gradient(135deg, #0a1f42 0%, #0F2854 50%, #1C4D8D 100%);
+          min-height: 100vh;
+          padding: 24px;
+          position: relative;
+        }
+        
+        .av-activity::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234988C4' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+          pointer-events: none;
+        }
+        
+        .av-glass-card {
+          background: rgba(255, 255, 255, 0.06);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(189, 232, 245, 0.12);
+          border-radius: 14px;
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .av-glass-header {
+          background: linear-gradient(90deg, rgba(8, 145, 178, 0.25), rgba(73, 136, 196, 0.15));
+          border-bottom: 1px solid rgba(189, 232, 245, 0.1);
+        }
+        
+        .av-stat-pill {
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(189, 232, 245, 0.15);
+          transition: all 0.3s ease;
+        }
+        
+        .av-stat-pill:hover {
+          background: rgba(255, 255, 255, 0.12);
+          border-color: rgba(189, 232, 245, 0.25);
+        }
       `}</style>
       
-      <div style={{ 
-        fontFamily: "'DM Sans', sans-serif",
-        background: '#f0f5fb',
-        minHeight: '100vh',
-        padding: '24px'
-      }}>
-        <div style={{ maxWidth: '1400px' }}>
+      <div className="av-activity">
+        <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           {/* Header */}
           <div style={{ 
             display: 'flex', 
@@ -120,12 +155,12 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
                 fontFamily: "'Space Grotesk', sans-serif",
                 fontSize: '28px',
                 fontWeight: 700,
-                color: '#0F2854',
+                color: '#BDE8F5',
                 margin: 0
               }}>
                 👤 My Activity Log
               </h1>
-              <p style={{ color: '#4a6080', fontSize: '14px', marginTop: '4px' }}>
+              <p style={{ color: 'rgba(189,232,245,0.6)', fontSize: '14px', marginTop: '4px' }}>
                 Track your actions: alerts resolved, maintenance performed, and status changes
               </p>
             </div>
@@ -133,41 +168,35 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
 
           {/* Quick Stats */}
           <div style={{ display: 'flex', gap: '20px', marginBottom: '24px' }}>
-            <div style={{
+            <div className="av-stat-pill" style={{
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
               padding: '10px 16px',
-              background: '#fff',
-              borderRadius: '8px',
-              border: '1px solid rgba(15,40,84,0.08)'
+              borderRadius: '8px'
             }}>
               <span style={{ fontSize: '20px', fontWeight: 700, color: '#16a34a' }}>{alerts.length}</span>
-              <span style={{ fontSize: '12px', color: '#8aa0bc' }}>Alerts Resolved</span>
+              <span style={{ fontSize: '12px', color: 'rgba(189,232,245,0.6)' }}>Alerts Resolved</span>
             </div>
-            <div style={{
+            <div className="av-stat-pill" style={{
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
               padding: '10px 16px',
-              background: '#fff',
-              borderRadius: '8px',
-              border: '1px solid rgba(15,40,84,0.08)'
+              borderRadius: '8px'
             }}>
               <span style={{ fontSize: '20px', fontWeight: 700, color: '#d97706' }}>{maintenance.length}</span>
-              <span style={{ fontSize: '12px', color: '#8aa0bc' }}>Maintenance Tasks</span>
+              <span style={{ fontSize: '12px', color: 'rgba(189,232,245,0.6)' }}>Maintenance Tasks</span>
             </div>
-            <div style={{
+            <div className="av-stat-pill" style={{
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
               padding: '10px 16px',
-              background: '#fff',
-              borderRadius: '8px',
-              border: '1px solid rgba(15,40,84,0.08)'
+              borderRadius: '8px'
             }}>
               <span style={{ fontSize: '20px', fontWeight: 700, color: '#4988C4' }}>{statusChanges.length}</span>
-              <span style={{ fontSize: '12px', color: '#8aa0bc' }}>Status Changes</span>
+              <span style={{ fontSize: '12px', color: 'rgba(189,232,245,0.6)' }}>Status Changes</span>
             </div>
           </div>
 
@@ -178,17 +207,18 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
               onChange={(e) => setHoursFilter(Number(e.target.value))}
               style={{
                 padding: '8px 14px',
-                border: '1px solid rgba(15,40,84,0.08)',
+                border: '1px solid rgba(189,232,245,0.2)',
                 borderRadius: '8px',
-                background: '#fff',
+                background: 'rgba(255,255,255,0.08)',
                 fontSize: '13px',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                color: '#BDE8F5'
               }}
             >
-              <option value={24}>Last 24 Hours</option>
-              <option value={48}>Last 48 Hours</option>
-              <option value={72}>Last 72 Hours</option>
-              <option value={168}>Last 7 Days</option>
+              <option value={24} style={{ background: '#0F2854' }}>Last 24 Hours</option>
+              <option value={48} style={{ background: '#0F2854' }}>Last 48 Hours</option>
+              <option value={72} style={{ background: '#0F2854' }}>Last 72 Hours</option>
+              <option value={168} style={{ background: '#0F2854' }}>Last 7 Days</option>
             </select>
           </div>
 
@@ -199,19 +229,12 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
             gap: '20px'
           }}>
             {/* Resolved Alerts */}
-            <div style={{
-              background: '#fff',
-              borderRadius: '14px',
-              border: '1px solid rgba(15,40,84,0.08)',
-              overflow: 'hidden',
-              boxShadow: '0 2px 8px rgba(15,40,84,0.04)'
-            }}>
-              <div style={{
+            <div className="av-glass-card">
+              <div className="av-glass-header" style={{
                 padding: '16px 20px',
-                borderBottom: '1px solid rgba(15,40,84,0.08)',
-                background: 'linear-gradient(135deg, #cffafe, white)'
+                borderRadius: '14px 14px 0 0'
               }}>
-                <span style={{ fontSize: '15px', fontWeight: 600, color: '#0891b2', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '15px', fontWeight: 600, color: '#BDE8F5', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   ✅ Alerts Resolved
                 </span>
               </div>
@@ -219,8 +242,8 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
                 {alerts.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '40px 20px' }}>
                     <div style={{ fontSize: '48px', marginBottom: '12px' }}>📭</div>
-                    <div style={{ fontSize: '16px', fontWeight: 600, color: '#0F2854' }}>No Alerts Resolved</div>
-                    <p style={{ color: '#8aa0bc', fontSize: '13px' }}>You haven't resolved any alerts in the last {hoursFilter} hours</p>
+                    <div style={{ fontSize: '16px', fontWeight: 600, color: '#BDE8F5' }}>No Alerts Resolved</div>
+                    <p style={{ color: 'rgba(189,232,245,0.5)', fontSize: '13px' }}>You haven't resolved any alerts in the last {hoursFilter} hours</p>
                   </div>
                 ) : (
                   alerts.map((alert) => (
@@ -228,7 +251,7 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
                       display: 'flex',
                       gap: '12px',
                       padding: '14px 20px',
-                      borderBottom: '1px solid rgba(15,40,84,0.08)'
+                      borderBottom: '1px solid rgba(189,232,245,0.08)'
                     }}>
                       <div style={{
                         width: '36px',
@@ -239,17 +262,17 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
                         justifyContent: 'center',
                         fontSize: '16px',
                         flexShrink: 0,
-                        background: '#dcfce7',
+                        background: 'rgba(22, 163, 74, 0.2)',
                         color: '#16a34a'
                       }}>✓</div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#0F2854' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#BDE8F5' }}>
                           {capitalizeWords(alert.alert_type)} Alert Resolved
                         </div>
-                        <div style={{ fontSize: '13px', color: '#4a6080', marginTop: '4px' }}>
+                        <div style={{ fontSize: '13px', color: 'rgba(189,232,245,0.7)', marginTop: '4px' }}>
                           {alert.device_name} — {alert.message}
                         </div>
-                        <div style={{ fontSize: '11px', color: '#8aa0bc', marginTop: '6px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                        <div style={{ fontSize: '11px', color: 'rgba(189,232,245,0.5)', marginTop: '6px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                           <span>📍 {capitalizeWords(alert.sensor_type)}</span>
                           <span>🕐 {formatDate(alert.resolved_at)}</span>
                           {alert.value && <span>📊 Value: {alert.value.toFixed(2)}</span>}
@@ -262,19 +285,12 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
             </div>
 
             {/* Maintenance Log */}
-            <div style={{
-              background: '#fff',
-              borderRadius: '14px',
-              border: '1px solid rgba(15,40,84,0.08)',
-              overflow: 'hidden',
-              boxShadow: '0 2px 8px rgba(15,40,84,0.04)'
-            }}>
-              <div style={{
+            <div className="av-glass-card">
+              <div className="av-glass-header" style={{
                 padding: '16px 20px',
-                borderBottom: '1px solid rgba(15,40,84,0.08)',
-                background: 'linear-gradient(135deg, #cffafe, white)'
+                borderRadius: '14px 14px 0 0'
               }}>
-                <span style={{ fontSize: '15px', fontWeight: 600, color: '#0891b2', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '15px', fontWeight: 600, color: '#BDE8F5', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   🔧 My Maintenance Work
                 </span>
               </div>
@@ -282,8 +298,8 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
                 {maintenance.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '40px 20px' }}>
                     <div style={{ fontSize: '48px', marginBottom: '12px' }}>🛠️</div>
-                    <div style={{ fontSize: '16px', fontWeight: 600, color: '#0F2854' }}>No Maintenance Logged</div>
-                    <p style={{ color: '#8aa0bc', fontSize: '13px' }}>You haven't logged any maintenance in the last {hoursFilter} hours</p>
+                    <div style={{ fontSize: '16px', fontWeight: 600, color: '#BDE8F5' }}>No Maintenance Logged</div>
+                    <p style={{ color: 'rgba(189,232,245,0.5)', fontSize: '13px' }}>You haven't logged any maintenance in the last {hoursFilter} hours</p>
                   </div>
                 ) : (
                   maintenance.map((maint) => {
@@ -294,7 +310,7 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
                         display: 'flex',
                         gap: '12px',
                         padding: '14px 20px',
-                        borderBottom: '1px solid rgba(15,40,84,0.08)'
+                        borderBottom: '1px solid rgba(189,232,245,0.08)'
                       }}>
                         <div style={{
                           width: '36px',
@@ -305,11 +321,11 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
                           justifyContent: 'center',
                           fontSize: '16px',
                           flexShrink: 0,
-                          background: '#fef3c7',
+                          background: 'rgba(217, 119, 6, 0.2)',
                           color: '#d97706'
                         }}>🔧</div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: '14px', fontWeight: 600, color: '#0F2854', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          <div style={{ fontSize: '14px', fontWeight: 600, color: '#BDE8F5', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                             {capitalizeWords(maint.maintenance_type)}
                             <span style={{
                               display: 'inline-flex',
@@ -334,23 +350,23 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
                               }}>Damage: {capitalizeWords(maint.damage_level)}</span>
                             )}
                           </div>
-                          <div style={{ fontSize: '13px', color: '#4a6080', marginTop: '4px' }}>
+                          <div style={{ fontSize: '13px', color: 'rgba(189,232,245,0.7)', marginTop: '4px' }}>
                             {maint.device_name}
                             {maint.malfunction_type && (
                               <><br/><span style={{ color: '#d97706' }}>⚠️ {maint.malfunction_type}</span></>
                             )}
                           </div>
-                          <div style={{ fontSize: '11px', color: '#8aa0bc', marginTop: '6px' }}>
+                          <div style={{ fontSize: '11px', color: 'rgba(189,232,245,0.5)', marginTop: '6px' }}>
                             <span>🕐 {formatDate(maint.performed_at)}</span>
                           </div>
                           {maint.notes && (
                             <div style={{
                               marginTop: '8px',
                               padding: '8px',
-                              background: '#f0f5fb',
+                              background: 'rgba(189,232,245,0.1)',
                               borderRadius: '8px',
                               fontSize: '12px',
-                              color: '#4a6080'
+                              color: 'rgba(189,232,245,0.7)'
                             }}>{maint.notes}</div>
                           )}
                         </div>
@@ -363,20 +379,12 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
           </div>
 
           {/* Device Status Changes */}
-          <div style={{
-            background: '#fff',
-            borderRadius: '14px',
-            border: '1px solid rgba(15,40,84,0.08)',
-            overflow: 'hidden',
-            boxShadow: '0 2px 8px rgba(15,40,84,0.04)',
-            marginTop: '20px'
-          }}>
-            <div style={{
+          <div className="av-glass-card" style={{ marginTop: '20px' }}>
+            <div className="av-glass-header" style={{
               padding: '16px 20px',
-              borderBottom: '1px solid rgba(15,40,84,0.08)',
-              background: 'linear-gradient(135deg, rgba(189,232,245,0.3), white)'
+              borderRadius: '14px 14px 0 0'
             }}>
-              <span style={{ fontSize: '15px', fontWeight: 600, color: '#0F2854', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '15px', fontWeight: 600, color: '#BDE8F5', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 🔄 Device Status Changes
               </span>
             </div>
@@ -384,8 +392,8 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
               {statusChanges.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px 20px' }}>
                   <div style={{ fontSize: '48px', marginBottom: '12px' }}>📭</div>
-                  <div style={{ fontSize: '16px', fontWeight: 600, color: '#0F2854' }}>No Status Changes</div>
-                  <p style={{ color: '#8aa0bc', fontSize: '13px' }}>No device status changes in the last {hoursFilter} hours</p>
+                  <div style={{ fontSize: '16px', fontWeight: 600, color: '#BDE8F5' }}>No Status Changes</div>
+                  <p style={{ color: 'rgba(189,232,245,0.5)', fontSize: '13px' }}>No device status changes in the last {hoursFilter} hours</p>
                 </div>
               ) : (
                 statusChanges.map((change) => (
@@ -393,7 +401,7 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
                     display: 'flex',
                     gap: '12px',
                     padding: '14px 20px',
-                    borderBottom: '1px solid rgba(15,40,84,0.08)'
+                    borderBottom: '1px solid rgba(189,232,245,0.08)'
                   }}>
                     <div style={{
                       width: '36px',
@@ -404,20 +412,20 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
                       justifyContent: 'center',
                       fontSize: '16px',
                       flexShrink: 0,
-                      background: 'rgba(189,232,245,0.3)',
+                      background: 'rgba(73, 136, 196, 0.2)',
                       color: '#4988C4'
                     }}>🔄</div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '14px', fontWeight: 600, color: '#0F2854' }}>
+                      <div style={{ fontSize: '14px', fontWeight: 600, color: '#BDE8F5' }}>
                         {change.device_name}
                       </div>
-                      <div style={{ fontSize: '13px', color: '#4a6080', marginTop: '4px' }}>
+                      <div style={{ fontSize: '13px', color: 'rgba(189,232,245,0.7)', marginTop: '4px' }}>
                         Status changed to <strong>{capitalizeWords(change.status)}</strong>
                         {change.location_name && (
                           <> at {change.location_name}</>
                         )}
                       </div>
-                      <div style={{ fontSize: '11px', color: '#8aa0bc', marginTop: '6px' }}>
+                      <div style={{ fontSize: '11px', color: 'rgba(189,232,245,0.5)', marginTop: '6px' }}>
                         <span>🕐 {formatDate(change.updated_at)}</span>
                       </div>
                     </div>

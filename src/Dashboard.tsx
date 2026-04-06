@@ -34,26 +34,23 @@ interface StatCardProps {
 }
 
 const StatCard: React.FC<StatCardProps> = ({ label, value, sub, variant = 'default' }) => (
-  <div style={{
-    background: '#fff',
+  <div className="av-glass-stat" style={{
     borderRadius: '14px',
-    padding: '20px',
-    border: '1px solid rgba(15,40,84,0.08)',
-    boxShadow: '0 2px 8px rgba(15,40,84,0.04)'
+    padding: '20px'
   }}>
-    <div style={{ fontSize: '11px', color: '#8aa0bc', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+    <div style={{ fontSize: '11px', color: 'rgba(189,232,245,0.6)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
       {label}
     </div>
     <div style={{ 
       fontSize: '28px', 
       fontWeight: 700, 
-      color: variant === 'attention' ? '#dc2626' : '#0F2854',
+      color: variant === 'attention' ? '#fca5a5' : '#BDE8F5',
       marginTop: '8px' 
     }}>
       {value}
     </div>
     {sub && (
-      <div style={{ fontSize: '12px', color: '#4a6080', marginTop: '4px' }}>{sub}</div>
+      <div style={{ fontSize: '12px', color: 'rgba(189,232,245,0.5)', marginTop: '4px' }}>{sub}</div>
     )}
   </div>
 );
@@ -78,7 +75,7 @@ const AlertItem: React.FC<AlertItemProps> = ({ alert, onAcknowledge }) => {
       alignItems: 'flex-start',
       gap: '12px',
       padding: '16px 20px',
-      borderBottom: '1px solid rgba(15,40,84,0.08)',
+      borderBottom: '1px solid rgba(189,232,245,0.08)',
       transition: 'background 0.2s'
     }}>
       <div style={{
@@ -96,13 +93,13 @@ const AlertItem: React.FC<AlertItemProps> = ({ alert, onAcknowledge }) => {
         {getAlertIcon(alert.alert_type)}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: '14px', fontWeight: 600, color: '#0F2854' }}>
+        <div style={{ fontSize: '14px', fontWeight: 600, color: '#BDE8F5' }}>
           {capitalizeWords(alert.alert_type)} Alert — {capitalizeWords(alert.sensor_type)}
         </div>
-        <div style={{ fontSize: '13px', color: '#4a6080', marginTop: '4px' }}>
+        <div style={{ fontSize: '13px', color: 'rgba(189,232,245,0.7)', marginTop: '4px' }}>
           {alert.message}
         </div>
-        <div style={{ fontSize: '11px', color: '#8aa0bc', marginTop: '6px' }}>
+        <div style={{ fontSize: '11px', color: 'rgba(189,232,245,0.5)', marginTop: '6px' }}>
           📍 {capitalizeWords(alert.river_section || 'Unknown')} • 
           🔧 {alert.device_name} • 
           🕐 {formatDate(alert.created_at)}
@@ -118,12 +115,12 @@ const AlertItem: React.FC<AlertItemProps> = ({ alert, onAcknowledge }) => {
           fontWeight: 500,
           cursor: 'pointer',
           border: 'none',
-          background: '#16a34a',
+          background: 'rgba(22, 163, 74, 0.8)',
           color: 'white',
           flexShrink: 0
         }}
-        onMouseEnter={(e) => e.currentTarget.style.background = '#15803d'}
-        onMouseLeave={(e) => e.currentTarget.style.background = '#16a34a'}
+        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(21, 128, 61, 0.9)'}
+        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(22, 163, 74, 0.8)'}
       >
         ✓ Ack
       </button>
@@ -153,7 +150,7 @@ const DeviceItem: React.FC<DeviceItemProps> = ({ device }) => {
       alignItems: 'center',
       gap: '12px',
       padding: '14px 20px',
-      borderBottom: '1px solid rgba(15,40,84,0.08)'
+      borderBottom: '1px solid rgba(189,232,245,0.08)'
     }}>
       <div style={{
         width: '10px',
@@ -164,10 +161,10 @@ const DeviceItem: React.FC<DeviceItemProps> = ({ device }) => {
         boxShadow: `0 0 0 3px ${getStatusColor(device.status).bg}`
       }} />
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: '14px', fontWeight: 600, color: '#0F2854' }}>
+        <div style={{ fontSize: '14px', fontWeight: 600, color: '#BDE8F5' }}>
           {device.device_name}
         </div>
-        <div style={{ fontSize: '12px', color: '#8aa0bc' }}>
+        <div style={{ fontSize: '12px', color: 'rgba(189,232,245,0.5)' }}>
           {device.location_name || 'Unknown'} • {device.sensor_count} sensors
         </div>
       </div>
@@ -379,15 +376,51 @@ const Dashboard: React.FC<DashboardProps> = ({
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+        
+        .av-dashboard {
+          font-family: 'DM Sans', sans-serif;
+          background: linear-gradient(135deg, #0a1f42 0%, #0F2854 50%, #1C4D8D 100%);
+          min-height: 100vh;
+          padding: 24px;
+          position: relative;
+        }
+        
+        .av-dashboard::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234988C4' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+          pointer-events: none;
+        }
+        
+        .av-glass-card {
+          background: rgba(255, 255, 255, 0.06);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(189, 232, 245, 0.12);
+          border-radius: 14px;
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .av-glass-header {
+          background: linear-gradient(90deg, rgba(8, 145, 178, 0.25), rgba(73, 136, 196, 0.15));
+          border-bottom: 1px solid rgba(189, 232, 245, 0.1);
+        }
+        
+        .av-glass-stat {
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(189, 232, 245, 0.15);
+          transition: all 0.3s ease;
+        }
+        
+        .av-glass-stat:hover {
+          background: rgba(255, 255, 255, 0.12);
+          border-color: rgba(189, 232, 245, 0.25);
+          transform: translateY(-2px);
+        }
       `}</style>
       
-      <div style={{ 
-        fontFamily: "'DM Sans', sans-serif",
-        background: '#f0f5fb',
-        minHeight: '100vh',
-        padding: '24px'
-      }}>
-        <div style={{ maxWidth: '1400px' }}>
+      <div className="av-dashboard">
+        <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           {/* Header */}
           <div style={{ 
             display: 'flex', 
@@ -400,12 +433,12 @@ const Dashboard: React.FC<DashboardProps> = ({
                 fontFamily: "'Space Grotesk', sans-serif",
                 fontSize: '28px',
                 fontWeight: 700,
-                color: '#0F2854',
+                color: '#BDE8F5',
                 margin: 0
               }}>
                 Operator Dashboard
               </h1>
-              <p style={{ color: '#4a6080', fontSize: '14px', marginTop: '4px' }}>
+              <p style={{ color: 'rgba(189,232,245,0.6)', fontSize: '14px', marginTop: '4px' }}>
                 Manage devices, acknowledge alerts, and monitor operations
               </p>
             </div>
@@ -414,8 +447,8 @@ const Dashboard: React.FC<DashboardProps> = ({
               alignItems: 'center',
               gap: '6px',
               padding: '6px 14px',
-              background: '#cffafe',
-              border: '1px solid #0891b2',
+              background: 'rgba(8, 145, 178, 0.2)',
+              border: '1px solid rgba(8, 145, 178, 0.4)',
               borderRadius: '20px',
               fontSize: '12px',
               fontWeight: 600,
@@ -505,21 +538,14 @@ const Dashboard: React.FC<DashboardProps> = ({
             marginBottom: '24px'
           }}>
             {/* Active Alerts */}
-            <div style={{
-              background: '#fff',
-              borderRadius: '14px',
-              border: '1px solid rgba(15,40,84,0.08)',
-              overflow: 'hidden',
-              boxShadow: '0 2px 8px rgba(15,40,84,0.04)'
-            }}>
-              <div style={{
+            <div className="av-glass-card">
+              <div className="av-glass-header" style={{
                 padding: '16px 20px',
-                borderBottom: '1px solid rgba(15,40,84,0.08)',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center'
               }}>
-                <span style={{ fontSize: '15px', fontWeight: 600, color: '#0F2854' }}>
+                <span style={{ fontSize: '15px', fontWeight: 600, color: '#BDE8F5' }}>
                   🔔 Active Alerts ({alerts.length})
                 </span>
                 {alerts.length > 0 && (
@@ -532,7 +558,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                       fontWeight: 500,
                       cursor: 'pointer',
                       border: 'none',
-                      background: '#1C4D8D',
+                      background: 'rgba(28, 77, 141, 0.8)',
                       color: 'white'
                     }}
                   >
@@ -544,8 +570,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                 {alerts.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '40px 20px' }}>
                     <div style={{ fontSize: '48px', marginBottom: '12px' }}>✅</div>
-                    <div style={{ fontSize: '16px', fontWeight: 600, color: '#0F2854' }}>No Active Alerts</div>
-                    <p style={{ color: '#8aa0bc', fontSize: '13px' }}>All systems operating normally</p>
+                    <div style={{ fontSize: '16px', fontWeight: 600, color: '#BDE8F5' }}>No Active Alerts</div>
+                    <p style={{ color: 'rgba(189,232,245,0.5)', fontSize: '13px' }}>All systems operating normally</p>
                   </div>
                 ) : (
                   alerts.slice(0, 8).map(alert => (
@@ -553,7 +579,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                   ))
                 )}
                 {alerts.length > 8 && (
-                  <div style={{ padding: '12px', textAlign: 'center', fontSize: '12px', color: '#8aa0bc' }}>
+                  <div style={{ padding: '12px', textAlign: 'center', fontSize: '12px', color: 'rgba(189,232,245,0.5)' }}>
                     +{alerts.length - 8} more alerts
                   </div>
                 )}
@@ -561,24 +587,17 @@ const Dashboard: React.FC<DashboardProps> = ({
             </div>
 
             {/* Device Status */}
-            <div style={{
-              background: '#fff',
-              borderRadius: '14px',
-              border: '1px solid rgba(15,40,84,0.08)',
-              overflow: 'hidden',
-              boxShadow: '0 2px 8px rgba(15,40,84,0.04)'
-            }}>
-              <div style={{
+            <div className="av-glass-card">
+              <div className="av-glass-header" style={{
                 padding: '16px 20px',
-                borderBottom: '1px solid rgba(15,40,84,0.08)',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center'
               }}>
-                <span style={{ fontSize: '15px', fontWeight: 600, color: '#0F2854' }}>
+                <span style={{ fontSize: '15px', fontWeight: 600, color: '#BDE8F5' }}>
                   🔧 Device Status
                 </span>
-                <span style={{ fontSize: '12px', color: '#1C4D8D', fontWeight: 500, cursor: 'pointer' }}>
+                <span style={{ fontSize: '12px', color: '#0891b2', fontWeight: 500, cursor: 'pointer' }}>
                   Manage Devices →
                 </span>
               </div>
@@ -586,7 +605,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 {devices.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '40px 20px' }}>
                     <div style={{ fontSize: '48px', marginBottom: '12px' }}>📭</div>
-                    <div style={{ fontSize: '16px', fontWeight: 600, color: '#0F2854' }}>No Devices Found</div>
+                    <div style={{ fontSize: '16px', fontWeight: 600, color: '#BDE8F5' }}>No Devices Found</div>
                   </div>
                 ) : (
                   devices.slice(0, 8).map(device => (

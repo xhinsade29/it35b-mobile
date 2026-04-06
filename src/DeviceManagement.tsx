@@ -77,17 +77,11 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
   };
 
   return (
-    <div style={{
-      background: '#fff',
-      borderRadius: '14px',
-      border: '1px solid rgba(15,40,84,0.08)',
-      overflow: 'hidden',
-      boxShadow: '0 2px 8px rgba(15,40,84,0.04)'
-    }}>
+    <div className="av-glass-card">
       {/* Header */}
       <div style={{
         padding: '16px 20px',
-        borderBottom: '1px solid rgba(15,40,84,0.08)',
+        borderBottom: '1px solid rgba(189,232,245,0.08)',
         display: 'flex',
         alignItems: 'center',
         gap: '12px'
@@ -100,10 +94,10 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
           boxShadow: `0 0 0 3px ${getStatusColor(device.status).bg}`
         }} />
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: '16px', fontWeight: 600, color: '#0F2854' }}>
+          <div style={{ fontSize: '16px', fontWeight: 600, color: '#BDE8F5' }}>
             {device.device_name}
           </div>
-          <div style={{ fontSize: '12px', color: '#8aa0bc' }}>
+          <div style={{ fontSize: '12px', color: 'rgba(189,232,245,0.5)' }}>
             {device.location_name || 'Unknown Location'}
           </div>
         </div>
@@ -443,15 +437,34 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({ userId = '00000000-
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+        
+        .av-devices {
+          font-family: 'DM Sans', sans-serif;
+          background: linear-gradient(135deg, #0a1f42 0%, #0F2854 50%, #1C4D8D 100%);
+          min-height: 100vh;
+          padding: 24px;
+          position: relative;
+        }
+        
+        .av-devices::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234988C4' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+          pointer-events: none;
+        }
+        
+        .av-glass-card {
+          background: rgba(255, 255, 255, 0.06);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(189, 232, 245, 0.12);
+          border-radius: 14px;
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+        }
       `}</style>
       
-      <div style={{ 
-        fontFamily: "'DM Sans', sans-serif",
-        background: '#f0f5fb',
-        minHeight: '100vh',
-        padding: '24px'
-      }}>
-        <div style={{ maxWidth: '1400px' }}>
+      <div className="av-devices">
+        <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           {/* Header */}
           <div style={{ 
             display: 'flex', 
@@ -464,12 +477,12 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({ userId = '00000000-
                 fontFamily: "'Space Grotesk', sans-serif",
                 fontSize: '28px',
                 fontWeight: 700,
-                color: '#0F2854',
+                color: '#BDE8F5',
                 margin: 0
               }}>
                 🔧 Device Management
               </h1>
-              <p style={{ color: '#4a6080', fontSize: '14px', marginTop: '4px' }}>
+              <p style={{ color: 'rgba(189,232,245,0.6)', fontSize: '14px', marginTop: '4px' }}>
                 Maintain, repair, and track device health
               </p>
             </div>
