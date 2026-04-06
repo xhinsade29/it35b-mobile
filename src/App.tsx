@@ -10,7 +10,7 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (currentPage) {
       case 'operator-dashboard':
-        return <Dashboard userName={userName} userRole={userRole} />;
+        return <Dashboard userName={userName} userRole={userRole} userId={1} />;
       case 'devices':
         return (
           <div style={{ marginLeft: '240px', padding: '40px' }}>

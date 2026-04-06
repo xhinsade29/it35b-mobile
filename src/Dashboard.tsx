@@ -12,15 +12,18 @@ import {
   capitalizeWords, 
   getStatusColor, 
   getRiverSectionClass, 
-  getAlertIcon,
-  mockFetch,
-  mockAlerts,
-  mockDevices,
-  mockReadings,
-  mockStats,
-  mockMyStats,
-  mockActivity
+  getAlertIcon
 } from './utils/dashboard';
+import {
+  getActiveAlerts,
+  getDevicesWithStatus,
+  getRecentReadings,
+  getOperationalStats,
+  getOperatorStats,
+  getMyActivityHistory,
+  acknowledgeAlert,
+  acknowledgeAllAlerts
+} from './services/dashboardService';
 
 // Stat Card Component
 interface StatCardProps {
@@ -292,9 +295,14 @@ const ActivityItemComponent: React.FC<ActivityItemProps> = ({ activity }) => {
 interface DashboardProps {
   userName?: string;
   userRole?: string;
+  userId?: number;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ userName = 'Operator', userRole = 'operator' }) => {
+const Dashboard: React.FC<DashboardProps> = ({ 
+  userName = 'Operator', 
+  userRole = 'operator',
+  userId = 1 
+}) => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [devices, setDevices] = useState<Device[]>([]);
   const [readings, setReadings] = useState<SensorReading[]>([]);
@@ -310,14 +318,13 @@ const Dashboard: React.FC<DashboardProps> = ({ userName = 'Operator', userRole =
   const loadData = async () => {
     setLoading(true);
     try {
-      // In production, replace these with actual API calls
       const [alertsData, devicesData, readingsData, statsData, myStatsData, activityData] = await Promise.all([
-        mockFetch(mockAlerts),
-        mockFetch(mockDevices),
-        mockFetch(mockReadings),
-        mockFetch(mockStats),
-        mockFetch(mockMyStats),
-        mockFetch(mockActivity)
+        getActiveAlerts(),
+        getDevicesWithStatus(),
+        getRecentReadings(24),
+        getOperationalStats(),
+        getOperatorStats(userId),
+        getMyActivityHistory(userId, 10)
       ]);
 
       setAlerts(alertsData);
@@ -336,17 +343,29 @@ const Dashboard: React.FC<DashboardProps> = ({ userName = 'Operator', userRole =
   const handleAcknowledge = async (alertId: number) => {
     if (!confirm('Acknowledge this alert?')) return;
     
-    // In production, make API call to acknowledge alert
-    console.log('Acknowledging alert:', alertId);
-    setAlerts(prev => prev.filter(a => a.alert_id !== alertId));
+    const success = await acknowledgeAlert(alertId, userId);
+    if (success) {
+      setAlerts(prev => prev.filter(a => a.alert_id !== alertId));
+      // Refresh operator stats
+      const newStats = await getOperatorStats(userId);
+      setMyStats(newStats);
+    } else {
+      alert('Failed to acknowledge alert. Please try again.');
+    }
   };
 
   const handleAcknowledgeAll = async () => {
     if (!confirm(`Acknowledge ALL ${alerts.length} alerts? This will mark them all as resolved.`)) return;
     
-    // In production, make API call to acknowledge all alerts
-    console.log('Acknowledging all alerts');
-    setAlerts([]);
+    const count = await acknowledgeAllAlerts(userId);
+    if (count > 0) {
+      setAlerts([]);
+      // Refresh operator stats
+      const newStats = await getOperatorStats(userId);
+      setMyStats(newStats);
+    } else {
+      alert('Failed to acknowledge alerts. Please try again.');
+    }
   };
 
   if (loading) {
