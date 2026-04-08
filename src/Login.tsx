@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import bcrypt from 'bcryptjs';
 import { supabase } from './lib/supabase';
 
 interface LoginProps {
@@ -23,18 +24,28 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     }
 
     try {
-      // Check user credentials from Supabase
-      const { data: user, error: userError } = await supabase!
-        .from('users')
-        .select('user_id, username, email, password_hash, full_name, role, is_active')
-        .or(`username.eq.${username},email.eq.${username}`)
-        .single();
+      console.log('Attempting login for:', username);
+      
+      // Use RPC function to bypass RLS
+      const { data: users, error: userError } = await supabase!
+        .rpc('authenticate_user', { p_login: username });
 
-      if (userError || !user) {
+      console.log('Query result:', { users, userError });
+
+      if (userError) {
+        console.error('Supabase error:', userError);
+        setError('Database error: ' + userError.message);
+        setLoading(false);
+        return;
+      }
+
+      if (!users || users.length === 0) {
         setError('User not found');
         setLoading(false);
         return;
       }
+
+      const user = users[0];
 
       if (!user.is_active) {
         setError('Account is inactive. Please contact administrator.');
@@ -42,9 +53,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         return;
       }
 
-      // Note: In production, use proper password hashing comparison
-      // This is simplified for migration - use bcrypt or similar
-      if (password !== user.password_hash) {
+      // Verify password with bcrypt
+      const isValidPassword = await bcrypt.compare(password, user.password_hash);
+      if (!isValidPassword) {
         setError('Invalid password');
         setLoading(false);
         return;
