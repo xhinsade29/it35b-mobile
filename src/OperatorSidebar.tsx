@@ -3,13 +3,15 @@ interface SidebarProps {
   userName?: string;
   userRole?: string;
   onNavigate?: (page: string) => void;
+  onLogout?: () => void;
 }
 
 const OperatorSidebar: React.FC<SidebarProps> = ({
   currentPage = 'operator-dashboard',
   userName = 'Operator',
   userRole = 'operator',
-  onNavigate
+  onNavigate,
+  onLogout
 }) => {
   const logoSrc = '/logo.png';
 
@@ -65,7 +67,7 @@ const OperatorSidebar: React.FC<SidebarProps> = ({
 
   const handleLogout = () => {
     if (confirm('Are you sure you want to logout?')) {
-      console.log('Logging out...');
+      onLogout?.();
     }
   };
 
