@@ -158,6 +158,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           font-size: 14px;
           color: #ffffff;
           transition: all 0.2s;
+          box-sizing: border-box;
         }
         
         .form-input::placeholder {
