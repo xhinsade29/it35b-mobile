@@ -26,8 +26,15 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     try {
       console.log('Attempting login for:', username);
       
+      // Check if Supabase is configured
+      if (!supabase) {
+        setError('Database not configured. Check your .env file.');
+        setLoading(false);
+        return;
+      }
+      
       // Use RPC function to bypass RLS
-      const { data: users, error: userError } = await supabase!
+      const { data: users, error: userError } = await supabase
         .rpc('authenticate_user', { p_login: username });
 
       console.log('Query result:', { users, userError });
@@ -46,6 +53,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       }
 
       const user = users[0];
+      console.log('User found:', { username: user.username, hash: user.password_hash });
+      console.log('Password entered:', password);
 
       if (!user.is_active) {
         setError('Account is inactive. Please contact administrator.');
@@ -53,8 +62,16 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         return;
       }
 
-      // Verify password with bcrypt
-      const isValidPassword = await bcrypt.compare(password, user.password_hash);
+      // Verify password - handle both bcrypt hashes and plaintext
+      let isValidPassword = false;
+      if (user.password_hash.startsWith('$2')) {
+        // Bcrypt hash
+        isValidPassword = await bcrypt.compare(password, user.password_hash);
+      } else {
+        // Plaintext comparison (for development/testing)
+        isValidPassword = password === user.password_hash;
+      }
+      console.log('Password valid:', isValidPassword);
       if (!isValidPassword) {
         setError('Invalid password');
         setLoading(false);
@@ -69,9 +86,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         full_name: user.full_name,
         role: user.role
       });
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Login error:', err);
-      setError('An error occurred during login');
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      if (errorMessage.includes('Failed to fetch')) {
+        setError('Cannot connect to database. Check your internet connection or verify Supabase is running.');
+      } else {
+        setError('An error occurred during login: ' + errorMessage);
+      }
     } finally {
       setLoading(false);
     }
