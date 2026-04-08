@@ -3,7 +3,7 @@ import { formatDate, capitalizeWords } from './utils/dashboard';
 import { getMyResolvedAlerts, getMyMaintenanceLogs, getDeviceStatusChanges } from './services/activityService';
 
 interface ResolvedAlert {
-  alert_id: number;
+  alert_id: string;
   alert_type: string;
   message: string;
   created_at: string;
@@ -14,18 +14,18 @@ interface ResolvedAlert {
 }
 
 interface MaintenanceLog {
-  maintenance_id: number;
+  maintenance_id: string;
   maintenance_type: string;
   notes: string;
   damage_level: string;
   malfunction_type: string;
   performed_at: string;
   device_name: string;
-  device_id: number;
+  device_id: string;
 }
 
 interface StatusChange {
-  device_id: number;
+  device_id: string;
   device_name: string;
   status: string;
   updated_at: string;
@@ -33,7 +33,7 @@ interface StatusChange {
 }
 
 interface ActivityLogProps {
-  userId?: number | string;
+  userId?: string;
   userName?: string;
 }
 
@@ -52,6 +52,7 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
   }, [hoursFilter]);
 
   const loadActivity = async () => {
+    console.log('ActivityLog: Loading activity for user:', userId, 'hours filter:', hoursFilter);
     setLoading(true);
     try {
       const [alertsData, maintenanceData, statusData] = await Promise.all([
@@ -60,11 +61,17 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
         getDeviceStatusChanges(hoursFilter)
       ]);
       
+      console.log('ActivityLog: Data loaded', { 
+        alerts: alertsData.length, 
+        maintenance: maintenanceData.length, 
+        statusChanges: statusData.length 
+      });
+      
       setAlerts(alertsData);
       setMaintenance(maintenanceData);
       setStatusChanges(statusData);
     } catch (error) {
-      console.error('Failed to load activity:', error);
+      console.error('ActivityLog: Failed to load activity:', error);
     } finally {
       setLoading(false);
     }
