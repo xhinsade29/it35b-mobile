@@ -10,7 +10,7 @@ interface MaintenanceLogData {
 }
 
 interface MaintenanceLog {
-  maintenance_id: number;
+  maintenance_id: string;
   maintenance_type: string;
   notes: string;
   damage_level: string;
@@ -80,12 +80,12 @@ export async function getDevicesWithStatus(): Promise<Device[]> {
 }
 
 // Get device maintenance history
-export async function getDeviceMaintenanceHistory(deviceId: number): Promise<MaintenanceLog[]> {
+export async function getDeviceMaintenanceHistory(deviceId: string): Promise<MaintenanceLog[]> {
   if (!supabase) {
     console.log('Using mock maintenance history');
     return [
       {
-        maintenance_id: 1,
+        maintenance_id: 'd9c01ba2-cfc8-4883-b03b-6ff33fdb9c10',
         maintenance_type: 'calibration',
         notes: 'Monthly calibration performed',
         damage_level: 'none',
@@ -131,16 +131,14 @@ export async function getDeviceMaintenanceHistory(deviceId: number): Promise<Mai
 
 // Log maintenance
 export async function logMaintenance(
-  deviceId: number, 
-  userId: number | string, 
+  deviceId: string, 
+  userId: string, 
   data: MaintenanceLogData
 ): Promise<boolean> {
   if (!supabase) {
     console.log('Mock: Logging maintenance', { deviceId, userId, data });
     return true;
   }
-
-  const userIdStr = String(userId);
 
   // Update device status to maintenance
   const { error: updateError } = await supabase
@@ -153,29 +151,27 @@ export async function logMaintenance(
     return false;
   }
 
-  // Insert maintenance log
-  const { error } = await supabase
-    .from('maintenance_logs')
-    .insert({
-      device_id: deviceId,
-      performed_by: userIdStr,
-      maintenance_type: data.maintenance_type,
-      notes: data.notes,
-      damage_level: data.damage_level,
-      malfunction_type: data.malfunction_type,
-      performed_at: new Date().toISOString()
+  // Insert maintenance log using RPC function (bypasses RLS)
+  const { data: logResult, error: logError } = await supabase
+    .rpc('create_maintenance_log', {
+      p_device_id: deviceId,
+      p_performed_by: userId,
+      p_maintenance_type: data.maintenance_type,
+      p_notes: data.notes,
+      p_damage_level: data.damage_level,
+      p_malfunction_type: data.malfunction_type || ''
     });
 
-  if (error) {
-    console.error('Error logging maintenance:', error);
+  if (logError) {
+    console.error('Error logging maintenance:', logError);
     return false;
   }
 
-  return true;
+  return logResult === true;
 }
 
 // Update device status
-export async function updateDeviceStatus(deviceId: number, status: string): Promise<boolean> {
+export async function updateDeviceStatus(deviceId: string, status: string): Promise<boolean> {
   if (!supabase) {
     console.log('Mock: Updating device status', { deviceId, status });
     return true;

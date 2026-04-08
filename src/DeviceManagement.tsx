@@ -4,7 +4,7 @@ import { formatDate, capitalizeWords, getStatusColor } from './utils/dashboard';
 import { getDevicesWithStatus, getDeviceMaintenanceHistory, logMaintenance, updateDeviceStatus } from './services/deviceService';
 
 interface MaintenanceLog {
-  maintenance_id: number;
+  maintenance_id: string;
   maintenance_type: string;
   notes: string;
   damage_level: string;
@@ -20,9 +20,9 @@ interface DeviceWithDetails extends Device {
 
 interface DeviceCardProps {
   device: DeviceWithDetails;
-  userId: number | string;
-  onStatusChange: (deviceId: number, status: string) => void;
-  onMaintenanceLog: (deviceId: number, data: MaintenanceFormData) => void;
+  userId: string;
+  onStatusChange: (deviceId: string, status: string) => void;
+  onMaintenanceLog: (deviceId: string, data: MaintenanceFormData) => void;
 }
 
 interface MaintenanceFormData {
@@ -368,7 +368,7 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
 };
 
 interface DeviceManagementProps {
-  userId?: number | string;
+  userId?: string;
   userName?: string;
 }
 
@@ -403,7 +403,7 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({ userId = '00000000-
     }
   };
 
-  const handleStatusChange = async (deviceId: number, status: string) => {
+  const handleStatusChange = async (deviceId: string, status: string) => {
     const success = await updateDeviceStatus(deviceId, status);
     if (success) {
       setDevices(prev => prev.map(d => 
@@ -414,7 +414,7 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({ userId = '00000000-
     }
   };
 
-  const handleMaintenanceLog = async (deviceId: number, data: MaintenanceFormData) => {
+  const handleMaintenanceLog = async (deviceId: string, data: MaintenanceFormData) => {
     const success = await logMaintenance(deviceId, userId, data);
     if (success) {
       // Refresh device data

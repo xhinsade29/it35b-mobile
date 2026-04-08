@@ -80,7 +80,7 @@ export const mockAlerts = [
     created_at: new Date(Date.now() - 3600000).toISOString(),
     status: 'active' as const,
     device_name: 'Sensor Station A1',
-    device_id: 1,
+    device_id: 'd9c01ba2-cfc8-4883-b03b-6ff33fdb9c00',
     location_name: 'Upstream',
     river_section: 'upstream',
     sensor_type: 'water_level',
@@ -93,7 +93,7 @@ export const mockAlerts = [
     created_at: new Date(Date.now() - 7200000).toISOString(),
     status: 'active' as const,
     device_name: 'Sensor Station B2',
-    device_id: 2,
+    device_id: 'd9c01ba2-cfc8-4883-b03b-6ff33fdb9c01',
     location_name: 'Midstream',
     river_section: 'midstream',
     sensor_type: 'temperature',
@@ -103,7 +103,7 @@ export const mockAlerts = [
 
 export const mockDevices = [
   {
-    device_id: 1,
+    device_id: 'd9c01ba2-cfc8-4883-b03b-6ff33fdb9c00',
     device_name: 'Sensor Station A1',
     status: 'active' as const,
     last_active: new Date(Date.now() - 300000).toISOString(),
@@ -114,7 +114,7 @@ export const mockDevices = [
     alert_count: 1
   },
   {
-    device_id: 2,
+    device_id: 'd9c01ba2-cfc8-4883-b03b-6ff33fdb9c01',
     device_name: 'Sensor Station B2',
     status: 'maintenance' as const,
     last_active: new Date(Date.now() - 86400000).toISOString(),
@@ -125,7 +125,7 @@ export const mockDevices = [
     alert_count: 0
   },
   {
-    device_id: 3,
+    device_id: 'd9c01ba2-cfc8-4883-b03b-6ff33fdb9c02',
     device_name: 'Sensor Station C3',
     status: 'inactive' as const,
     last_active: null,

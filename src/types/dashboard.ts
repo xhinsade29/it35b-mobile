@@ -15,7 +15,7 @@ export interface Alert {
 }
 
 export interface Device {
-  device_id: number;
+  device_id: string;
   device_name: string;
   status: 'active' | 'inactive' | 'maintenance';
   last_active: string | null;
@@ -72,8 +72,8 @@ export interface OperatorStats {
 }
 
 export interface MaintenanceRecord {
-  maintenance_id: number;
-  device_id: number;
+  maintenance_id: string;
+  device_id: string;
   maintenance_type: string;
   notes: string;
   performed_at: string;
