@@ -417,13 +417,11 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({ userId = '00000000-
   const handleMaintenanceLog = async (deviceId: string, data: MaintenanceFormData) => {
     const success = await logMaintenance(deviceId, userId, data);
     if (success) {
-      // Refresh device data
-      const history = await getDeviceMaintenanceHistory(deviceId);
-      setDevices(prev => prev.map(d => 
-        d.device_id === deviceId 
-          ? { ...d, status: 'maintenance', maintenanceHistory: history } 
-          : d
-      ));
+      // Reload all devices to get fresh status from database
+      console.log('Maintenance logged, reloading devices...');
+      const refreshedDevices = await getDevicesWithStatus();
+      console.log('Devices reloaded:', refreshedDevices.length);
+      setDevices(refreshedDevices);
     } else {
       alert('Failed to log maintenance. Please try again.');
     }
