@@ -7,6 +7,11 @@ interface MaintenanceLogData {
   damage_level: string;
   malfunction_type: string;
   notes: string;
+  parts_used?: string;
+  cost?: number;
+  duration_hours?: number;
+  duration_minutes?: number;
+  performed_by_name?: string;
 }
 
 interface MaintenanceLog {
@@ -17,6 +22,7 @@ interface MaintenanceLog {
   malfunction_type: string;
   performed_at: string;
   operator_name: string;
+  duration_minutes?: number;
 }
 
 // Database response types to replace 'any'
@@ -129,6 +135,7 @@ export async function getDeviceMaintenanceHistory(deviceId: string): Promise<Mai
       damage_level,
       malfunction_type,
       performed_at,
+      duration_minutes,
       users!inner (
         full_name
       )
@@ -211,6 +218,9 @@ export async function logMaintenance(
     statusMatch: deviceCheck?.status === 'maintenance'
   });
 
+  // Calculate total minutes from hours + minutes
+  const totalMinutes = ((data.duration_hours || 0) * 60) + (data.duration_minutes || 0);
+  
   // Insert maintenance log using RPC function (bypasses RLS)
   console.log('Step 2: Calling create_maintenance_log RPC...');
   console.log('RPC params:', {
@@ -219,35 +229,50 @@ export async function logMaintenance(
     p_maintenance_type: data.maintenance_type,
     p_notes: data.notes,
     p_damage_level: data.damage_level,
-    p_malfunction_type: data.malfunction_type || ''
+    p_malfunction_type: data.malfunction_type || '',
+    p_parts_used: data.parts_used || '',
+    p_cost: data.cost || 0,
+    p_duration_minutes: totalMinutes,
+    duration_display: `${data.duration_hours || 0}h ${data.duration_minutes || 0}m`
   });
   
   const { data: logResult, error: logError } = await supabase
-    .rpc('create_maintenance_log', {
+    .rpc('create_maintenance_log_v2', {  // Use v2 to avoid overload conflict
       p_device_id: deviceId,
       p_performed_by: userId,
       p_maintenance_type: data.maintenance_type,
-      p_notes: data.notes,
-      p_damage_level: data.damage_level,
-      p_malfunction_type: data.malfunction_type || ''
+      p_performed_by_name: data.performed_by_name,
+      p_notes: data.notes || '',
+      p_damage_level: data.damage_level || 'none',
+      p_malfunction_type: data.malfunction_type || 'none',
+      p_parts_used: data.parts_used || 'none',
+      p_cost: data.cost || 0,
+      p_duration_minutes: totalMinutes
     });
 
   console.log('RPC result:', { logResult, logError });
 
-  if (logError) {
-    console.error('Step 2 FAILED - Error logging maintenance:', logError);
-    console.error('Error code:', logError.code);
-    console.error('Error message:', logError.message);
+  if (logError || logResult === false || (typeof logResult === 'string' && logResult.startsWith('ERROR'))) {
+    console.error('Step 2 FAILED - Error logging maintenance:', logError || logResult || 'Unknown error');
+    if (logError) {
+      console.error('Error code:', logError.code);
+      console.error('Error message:', logError.message);
+    }
     return false;
   }
 
   console.log('Step 2 SUCCESS: Maintenance logged');
+  console.log('Input data was:', {
+    parts_used: data.parts_used,
+    cost: data.cost,
+    duration_minutes: data.duration_minutes
+  });
   
   // Verify the insert by querying recent logs
   console.log('Step 3: Verifying insert...');
   const { data: verifyData, error: verifyError } = await supabase
     .from('maintenance_logs')
-    .select('maintenance_id, device_id, performed_by, maintenance_type')
+    .select('maintenance_id, device_id, performed_by, maintenance_type, damage_level, malfunction_type, notes, parts_used, cost, duration_minutes, performed_at')
     .eq('device_id', deviceId)
     .order('performed_at', { ascending: false })
     .limit(1);
@@ -260,7 +285,7 @@ export async function logMaintenance(
   }
   
   console.log('=== logMaintenance END ===');
-  return logResult === true;
+  return logResult === true || logResult === 'SUCCESS';
 }
 
 // Update device status
