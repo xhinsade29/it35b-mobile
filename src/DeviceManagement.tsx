@@ -11,6 +11,7 @@ interface MaintenanceLog {
   malfunction_type: string;
   performed_at: string;
   operator_name: string;
+  duration_minutes?: number;
 }
 
 interface DeviceWithDetails extends Device {
@@ -30,6 +31,11 @@ interface MaintenanceFormData {
   damage_level: string;
   malfunction_type: string;
   notes: string;
+  parts_used: string;
+  cost: number;
+  duration_hours: number;
+  duration_minutes: number;
+  performed_by_name: string;
 }
 
 const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange, onMaintenanceLog }) => {
@@ -37,9 +43,17 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
   const [maintenanceData, setMaintenanceData] = useState<MaintenanceFormData>({
     maintenance_type: '',
     damage_level: 'none',
-    malfunction_type: '',
-    notes: ''
+    malfunction_type: 'none',
+    notes: '',
+    parts_used: 'none',
+    cost: 0,
+    duration_hours: 0,
+    duration_minutes: 0,
+    performed_by_name: ''
   });
+  
+  // Use userId for future audit logging
+  void userId;
 
   const healthColors: Record<string, { bg: string; color: string }> = {
     healthy: { bg: '#dcfce7', color: '#16a34a' },
@@ -56,6 +70,16 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
     damaged: '#dc2626'
   };
 
+  // Format duration from minutes to hours and minutes
+  const formatDuration = (minutes?: number): string => {
+    if (!minutes || minutes <= 0) return '';
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0 && mins > 0) return `${hours} hour${hours !== 1 ? 's' : ''} ${mins} minute${mins !== 1 ? 's' : ''}`;
+    if (hours > 0) return `${hours} hour${hours !== 1 ? 's' : ''}`;
+    return `${mins} minute${mins !== 1 ? 's' : ''}`;
+  };
+
   const healthStatus = device.alert_count > 0 ? 'critical' : 
                        !device.last_active ? 'offline' : 'healthy';
   const healthLabel = healthStatus === 'critical' ? 'Malfunctioning' : 
@@ -65,14 +89,30 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
   const handleMaintenanceSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!maintenanceData.maintenance_type) return;
+    if (!maintenanceData.performed_by_name?.trim()) {
+      alert('Please enter the name of who performed the maintenance.');
+      return;
+    }
     
-    onMaintenanceLog(device.device_id, maintenanceData);
+    // Ensure all fields have values before submitting
+    const sanitizedData = {
+      ...maintenanceData,
+      malfunction_type: maintenanceData.malfunction_type || 'none',
+      parts_used: maintenanceData.parts_used || 'none',
+      cost: maintenanceData.cost || 0
+    };
+    onMaintenanceLog(device.device_id, sanitizedData);
     setShowMaintenanceForm(false);
     setMaintenanceData({
       maintenance_type: '',
       damage_level: 'none',
-      malfunction_type: '',
-      notes: ''
+      malfunction_type: 'none',
+      notes: '',
+      parts_used: 'none',
+      cost: 0,
+      duration_hours: 0,
+      duration_minutes: 0,
+      performed_by_name: ''
     });
   };
 
@@ -116,21 +156,22 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
       {/* Body */}
       <div style={{ padding: '20px' }}>
         {/* Info rows */}
-        <div style={{ display: 'flex', gap: '16px', marginBottom: '12px', fontSize: '13px', color: '#4a6080' }}>
-          <span style={{ fontWeight: 500, color: '#0F2854', minWidth: '100px' }}>Section:</span>
+        <div style={{ display: 'flex', gap: '16px', marginBottom: '12px', fontSize: '13px', color: '#BDE8F5' }}>
+          <span style={{ fontWeight: 500, color: '#fff', minWidth: '100px' }}>Section:</span>
           <span>{capitalizeWords(device.river_section || 'N/A')}</span>
         </div>
         
-        <div style={{ display: 'flex', gap: '16px', marginBottom: '12px', fontSize: '13px', color: '#4a6080' }}>
-          <span style={{ fontWeight: 500, color: '#0F2854', minWidth: '100px' }}>Sensors:</span>
+        <div style={{ display: 'flex', gap: '16px', marginBottom: '12px', fontSize: '13px', color: '#BDE8F5' }}>
+          <span style={{ fontWeight: 500, color: '#fff', minWidth: '100px' }}>Sensors:</span>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {device.sensors?.map(sensor => (
               <span key={sensor.sensor_id} style={{
                 padding: '4px 10px',
-                background: 'rgba(189,232,245,0.3)',
+                background: 'rgba(189,232,245,0.2)',
                 borderRadius: '10px',
                 fontSize: '11px',
-                color: '#0F2854'
+                color: '#BDE8F5',
+                border: '1px solid rgba(189,232,245,0.3)'
               }}>
                 {capitalizeWords(sensor.sensor_type)}
               </span>
@@ -138,8 +179,8 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '16px', marginBottom: '12px', fontSize: '13px', color: '#4a6080' }}>
-          <span style={{ fontWeight: 500, color: '#0F2854', minWidth: '100px' }}>Last Active:</span>
+        <div style={{ display: 'flex', gap: '16px', marginBottom: '12px', fontSize: '13px', color: '#BDE8F5' }}>
+          <span style={{ fontWeight: 500, color: '#fff', minWidth: '100px' }}>Last Active:</span>
           <span>{device.last_active ? formatDate(device.last_active) : 'Never'}</span>
         </div>
 
@@ -163,6 +204,25 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
         {/* Maintenance Form */}
         {showMaintenanceForm ? (
           <form onSubmit={handleMaintenanceSubmit} style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(15,40,84,0.08)' }}>
+            {/* Performed By - at the top */}
+            <div style={{ marginBottom: '10px' }}>
+              <input
+                type="text"
+                value={maintenanceData.performed_by_name}
+                onChange={(e) => setMaintenanceData({...maintenanceData, performed_by_name: e.target.value})}
+                placeholder="👤 Performed By (Name)"
+                style={{
+                  padding: '10px 12px',
+                  border: '1px solid rgba(15,40,84,0.08)',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  background: '#fff',
+                  width: '100%'
+                }}
+              />
+            </div>
+            
+            {/* Maintenance Type + Change Status */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
               <select
                 value={maintenanceData.maintenance_type}
@@ -186,6 +246,26 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
                 <option value="relocation">📍 Relocate Device</option>
               </select>
               <select
+                value={device.status}
+                onChange={(e) => onStatusChange(device.device_id, e.target.value)}
+                style={{
+                  padding: '10px 12px',
+                  border: '1px solid rgba(15,40,84,0.08)',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  background: '#fff'
+                }}
+              >
+                <option value="active">🟢 Active</option>
+                <option value="maintenance">🟡 Maintenance</option>
+                <option value="inactive">⚫ Inactive</option>
+                <option value="damaged">🔴 Damaged</option>
+              </select>
+            </div>
+            
+            {/* Damage Level + Malfunction Type */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+              <select
                 value={maintenanceData.damage_level}
                 onChange={(e) => setMaintenanceData({...maintenanceData, damage_level: e.target.value})}
                 style={{
@@ -201,8 +281,6 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
                 <option value="medium">🔶 Medium Damage</option>
                 <option value="high">🚨 High Damage</option>
               </select>
-            </div>
-            <div style={{ marginBottom: '10px' }}>
               <select
                 value={maintenanceData.malfunction_type}
                 onChange={(e) => setMaintenanceData({...maintenanceData, malfunction_type: e.target.value})}
@@ -211,11 +289,10 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
                   border: '1px solid rgba(15,40,84,0.08)',
                   borderRadius: '8px',
                   fontSize: '13px',
-                  background: '#fff',
-                  width: '100%'
+                  background: '#fff'
                 }}
               >
-                <option value="">Select Malfunction Type (if any)</option>
+                <option value="none">✓ No Malfunction</option>
                 <option value="sensor_failure">📡 Sensor Failure</option>
                 <option value="power_issue">🔌 Power Issue</option>
                 <option value="communication_error">📶 Communication Error</option>
@@ -227,6 +304,92 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
                 <option value="other">❓ Other</option>
               </select>
             </div>
+            
+            {/* Parts Used - full width */}
+            <div style={{ marginBottom: '10px' }}>
+              <select
+                value={maintenanceData.parts_used}
+                onChange={(e) => setMaintenanceData({...maintenanceData, parts_used: e.target.value})}
+                style={{
+                  padding: '10px 12px',
+                  border: '1px solid rgba(15,40,84,0.08)',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  background: '#fff',
+                  width: '100%'
+                }}
+              >
+                <option value="none">✓ No Parts Used</option>
+                <option value="sensor_module">📡 Sensor Module</option>
+                <option value="battery_pack">🔋 Battery Pack</option>
+                <option value="solar_panel">☀️ Solar Panel</option>
+                <option value="antenna">📶 Antenna</option>
+                <option value="cable_wiring">🔌 Cable/Wiring</option>
+                <option value="control_board">🔧 Control Board</option>
+                <option value="waterproof_seal">🛡️ Waterproof Seal</option>
+                <option value="mounting_bracket">🔩 Mounting Bracket</option>
+                <option value="calibration_kit">📏 Calibration Kit</option>
+                <option value="cleaning_supplies">🧹 Cleaning Supplies</option>
+                <option value="other">🔩 Other Parts</option>
+              </select>
+            </div>
+            
+            {/* Cost + Hours + Minutes - in a row */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '11px', color: '#BDE8F5', fontWeight: 500 }}>Cost ($)</label>
+                <input
+                  type="number"
+                  value={maintenanceData.cost || ''}
+                  onChange={(e) => setMaintenanceData({...maintenanceData, cost: parseFloat(e.target.value) || 0})}
+                  placeholder="0"
+                  style={{
+                    padding: '10px 12px',
+                    border: '1px solid rgba(15,40,84,0.08)',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    background: '#fff'
+                  }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '11px', color: '#BDE8F5', fontWeight: 500 }}>Hours</label>
+                <select
+                  value={maintenanceData.duration_hours}
+                  onChange={(e) => setMaintenanceData({...maintenanceData, duration_hours: parseInt(e.target.value) || 0})}
+                  style={{
+                    padding: '10px 12px',
+                    border: '1px solid rgba(15,40,84,0.08)',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    background: '#fff'
+                  }}
+                >
+                  {[0,1,2,3,4,5,6,7,8].map(h => (
+                    <option key={h} value={h}>{h} hr{h !== 1 ? 's' : ''}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '11px', color: '#BDE8F5', fontWeight: 500 }}>Minutes</label>
+                <select
+                  value={maintenanceData.duration_minutes}
+                  onChange={(e) => setMaintenanceData({...maintenanceData, duration_minutes: parseInt(e.target.value) || 0})}
+                  style={{
+                    padding: '10px 12px',
+                    border: '1px solid rgba(15,40,84,0.08)',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    background: '#fff'
+                  }}
+                >
+                  {[0,15,30,45].map(m => (
+                    <option key={m} value={m}>{m} min</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            
             <textarea
               value={maintenanceData.notes}
               onChange={(e) => setMaintenanceData({...maintenanceData, notes: e.target.value})}
@@ -298,54 +461,26 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
           </button>
         )}
 
-        {/* Status Change */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          marginTop: '16px',
-          paddingTop: '16px',
-          borderTop: '1px solid rgba(15,40,84,0.08)'
-        }}>
-          <span style={{ fontSize: '13px', color: '#8aa0bc' }}>Change Status:</span>
-          <select
-            value={device.status}
-            onChange={(e) => onStatusChange(device.device_id, e.target.value)}
-            style={{
-              flex: 1,
-              padding: '10px 12px',
-              border: '1px solid rgba(15,40,84,0.08)',
-              borderRadius: '8px',
-              fontSize: '13px',
-              background: '#fff'
-            }}
-          >
-            <option value="active">🟢 Active</option>
-            <option value="maintenance">🟡 Maintenance</option>
-            <option value="inactive">⚫ Inactive</option>
-            <option value="damaged">🔴 Damaged</option>
-          </select>
-        </div>
-
         {/* Maintenance History */}
         {device.maintenanceHistory && device.maintenanceHistory.length > 0 && (
           <div style={{ marginTop: '16px' }}>
-            <div style={{ fontSize: '12px', fontWeight: 600, color: '#8aa0bc', marginBottom: '10px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 600, color: '#BDE8F5', marginBottom: '10px' }}>
               📋 Recent Maintenance History
             </div>
             {device.maintenanceHistory.slice(0, 3).map((maint) => (
               <div key={maint.maintenance_id} style={{
                 padding: '10px',
-                background: '#f0f5fb',
+                background: 'rgba(189,232,245,0.1)',
                 borderRadius: '8px',
                 marginBottom: '8px',
+                border: '1px solid rgba(189,232,245,0.2)',
                 fontSize: '12px'
               }}>
-                <div style={{ color: '#8aa0bc', marginBottom: '4px' }}>
+                <div style={{ color: '#BDE8F5', marginBottom: '4px' }}>
                   {formatDate(maint.performed_at)} by {maint.operator_name}
                 </div>
                 <div>
-                  <span style={{ fontWeight: 500, color: '#0F2854' }}>
+                  <span style={{ fontWeight: 500, color: '#fff' }}>
                     {capitalizeWords(maint.maintenance_type)}
                   </span>
                   {maint.damage_level !== 'none' && (
@@ -353,6 +488,9 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
                   )}
                   {maint.malfunction_type && (
                     <span style={{ color: '#d97706' }}> • {maint.malfunction_type}</span>
+                  )}
+                  {maint.duration_minutes && maint.duration_minutes > 0 && (
+                    <span style={{ color: '#16a34a' }}> • ⏱️ {formatDuration(maint.duration_minutes)}</span>
                   )}
                 </div>
                 {maint.notes && (
@@ -372,7 +510,9 @@ interface DeviceManagementProps {
   userName?: string;
 }
 
-const DeviceManagement: React.FC<DeviceManagementProps> = ({ userId = '00000000-0000-0000-0000-000000000001', userName = 'Operator' }) => {
+const DeviceManagement: React.FC<DeviceManagementProps> = ({ userId = '00000000-0000-0000-0000-000000000001', userName }) => {
+  // userName available for future header display
+  void userName;
   const [devices, setDevices] = useState<DeviceWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -407,7 +547,7 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({ userId = '00000000-
     const success = await updateDeviceStatus(deviceId, status);
     if (success) {
       setDevices(prev => prev.map(d => 
-        d.device_id === deviceId ? { ...d, status: status as any } : d
+        d.device_id === deviceId ? { ...d, status: status as 'active' | 'maintenance' | 'inactive' } : d
       ));
     } else {
       alert('Failed to update device status. Please try again.');
@@ -417,11 +557,9 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({ userId = '00000000-
   const handleMaintenanceLog = async (deviceId: string, data: MaintenanceFormData) => {
     const success = await logMaintenance(deviceId, userId, data);
     if (success) {
-      // Reload all devices to get fresh status from database
-      console.log('Maintenance logged, reloading devices...');
-      const refreshedDevices = await getDevicesWithStatus();
-      console.log('Devices reloaded:', refreshedDevices.length);
-      setDevices(refreshedDevices);
+      // Reload all devices with full maintenance history
+      console.log('Maintenance logged, reloading devices with history...');
+      await loadDevices();
     } else {
       alert('Failed to log maintenance. Please try again.');
     }
