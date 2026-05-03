@@ -1,6 +1,6 @@
 // Utility functions for dashboard
 
-import type { Device, DeviceHealth, SensorReading } from '../types/dashboard';
+import type { Device, DeviceHealth } from '../types/dashboard';
 
 export function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -80,7 +80,7 @@ export const mockAlerts = [
     created_at: new Date(Date.now() - 3600000).toISOString(),
     status: 'active' as const,
     device_name: 'Sensor Station A1',
-    device_id: 'd9c01ba2-cfc8-4883-b03b-6ff33fdb9c00',
+    device_id: 1,
     location_name: 'Upstream',
     river_section: 'upstream',
     sensor_type: 'water_level',
@@ -93,7 +93,7 @@ export const mockAlerts = [
     created_at: new Date(Date.now() - 7200000).toISOString(),
     status: 'active' as const,
     device_name: 'Sensor Station B2',
-    device_id: 'd9c01ba2-cfc8-4883-b03b-6ff33fdb9c01',
+    device_id: 2,
     location_name: 'Midstream',
     river_section: 'midstream',
     sensor_type: 'temperature',

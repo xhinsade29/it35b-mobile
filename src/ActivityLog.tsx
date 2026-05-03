@@ -40,6 +40,7 @@ interface StatusChange {
 
 interface ActivityLogProps {
   userId?: string;
+  userName?: string;
 }
 
 const ActivityLog: React.FC<ActivityLogProps> = ({ 
