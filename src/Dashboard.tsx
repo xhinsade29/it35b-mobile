@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { 
   Alert, 
   Device, 
@@ -24,6 +24,15 @@ import {
   acknowledgeAlert,
   acknowledgeAllAlerts
 } from './services/dashboardService';
+import {
+  FullPageSkeleton,
+  StatCardSkeleton,
+  AlertItemSkeleton,
+  DeviceItemSkeleton,
+  TableRowSkeleton,
+  ActivityItemSkeleton,
+  CardHeaderSkeleton
+} from './components/SkeletonComponents';
 
 // Stat Card Component
 interface StatCardProps {
@@ -308,11 +317,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     console.log('Dashboard: Starting to load data...');
     setLoading(true);
     try {
@@ -338,7 +343,11 @@ const Dashboard: React.FC<DashboardProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleAcknowledge = async (alertId: number) => {
     if (!confirm('Acknowledge this alert?')) return;
@@ -369,7 +378,153 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   if (loading) {
-    return <div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>;
+    return (
+      <FullPageSkeleton>
+        <div className="av-dashboard">
+          <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+            {/* Header Skeleton */}
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              marginBottom: '24px'
+            }}>
+              <div>
+                <div style={{ 
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: '28px',
+                  fontWeight: 700,
+                  color: '#BDE8F5',
+                  margin: 0
+                }}>
+                  <div style={{ width: '200px', height: '28px', background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)', backgroundSize: '200% 100%', animation: 'skeleton-shimmer 1.5s infinite', borderRadius: '4px' }} />
+                </div>
+                <div style={{ width: '300px', height: '14px', background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)', backgroundSize: '200% 100%', animation: 'skeleton-shimmer 1.5s infinite', borderRadius: '4px', marginTop: '4px' }} />
+              </div>
+              <div style={{ width: '120px', height: '28px', background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)', backgroundSize: '200% 100%', animation: 'skeleton-shimmer 1.5s infinite', borderRadius: '20px' }} />
+            </div>
+
+            {/* Stats Grid Skeleton */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(5, 1fr)', 
+              gap: '16px',
+              marginBottom: '24px'
+            }}>
+              {[1, 2, 3, 4, 5].map(i => <StatCardSkeleton key={i} />)}
+            </div>
+
+            {/* Alerts & Devices Grid Skeleton */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: '1fr 1fr', 
+              gap: '16px',
+              marginBottom: '24px'
+            }}>
+              {/* Active Alerts Skeleton */}
+              <div className="av-glass-card">
+                <CardHeaderSkeleton />
+                <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                  {[1, 2, 3, 4, 5].map(i => <AlertItemSkeleton key={i} />)}
+                </div>
+              </div>
+
+              {/* Device Status Skeleton */}
+              <div className="av-glass-card">
+                <CardHeaderSkeleton />
+                <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                  {[1, 2, 3, 4, 5].map(i => <DeviceItemSkeleton key={i} />)}
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Operational Data Skeleton */}
+            <div className="av-glass-card" style={{ marginBottom: '24px' }}>
+              <CardHeaderSkeleton />
+              <div style={{ maxHeight: '350px', overflowY: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr>
+                      <th style={{ 
+                        background: 'rgba(189,232,245,0.1)', 
+                        padding: '12px 16px', 
+                        textAlign: 'left',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: 'rgba(189,232,245,0.7)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>Time</th>
+                      <th style={{ 
+                        background: 'rgba(189,232,245,0.1)', 
+                        padding: '12px 16px', 
+                        textAlign: 'left',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: 'rgba(189,232,245,0.7)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>Device</th>
+                      <th style={{ 
+                        background: 'rgba(189,232,245,0.1)', 
+                        padding: '12px 16px', 
+                        textAlign: 'left',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: 'rgba(189,232,245,0.7)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>Location</th>
+                      <th style={{ 
+                        background: 'rgba(189,232,245,0.1)', 
+                        padding: '12px 16px', 
+                        textAlign: 'left',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: 'rgba(189,232,245,0.7)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>Sensor</th>
+                      <th style={{ 
+                        background: 'rgba(189,232,245,0.1)', 
+                        padding: '12px 16px', 
+                        textAlign: 'left',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: 'rgba(189,232,245,0.7)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>Value</th>
+                      <th style={{ 
+                        background: 'rgba(189,232,245,0.1)', 
+                        padding: '12px 16px', 
+                        textAlign: 'left',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: 'rgba(189,232,245,0.7)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[1, 2, 3, 4, 5].map(i => <TableRowSkeleton key={i} />)}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* My Recent Activity Skeleton */}
+            <div className="av-glass-card">
+              <CardHeaderSkeleton />
+              <div style={{ maxHeight: '300px', overflowY: 'auto', padding: 0 }}>
+                {[1, 2, 3, 4, 5].map(i => <ActivityItemSkeleton key={i} />)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </FullPageSkeleton>
+    );
   }
 
   return (
