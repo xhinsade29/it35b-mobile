@@ -1,9 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { formatDate, capitalizeWords } from './utils/dashboard';
 import { getMyResolvedAlerts, getMyMaintenanceLogs, getDeviceStatusChanges } from './services/activityService';
+import {
+  FullPageSkeleton,
+  ActivityItemSkeleton,
+  CardHeaderSkeleton,
+  StatsPillSkeleton
+} from './components/SkeletonComponents';
 
 interface ResolvedAlert {
-  alert_id: string;
+  alert_id: number;
   alert_type: string;
   message: string;
   created_at: string;
@@ -14,18 +20,18 @@ interface ResolvedAlert {
 }
 
 interface MaintenanceLog {
-  maintenance_id: string;
+  maintenance_id: number;
   maintenance_type: string;
   notes: string;
   damage_level: string;
   malfunction_type: string;
   performed_at: string;
   device_name: string;
-  device_id: string;
+  device_id: number;
 }
 
 interface StatusChange {
-  device_id: string;
+  device_id: number;
   device_name: string;
   status: string;
   updated_at: string;
@@ -34,12 +40,10 @@ interface StatusChange {
 
 interface ActivityLogProps {
   userId?: string;
-  userName?: string;
 }
 
 const ActivityLog: React.FC<ActivityLogProps> = ({ 
-  userId = '00000000-0000-0000-0000-000000000001', 
-  userName = 'Operator' 
+  userId = '00000000-0000-0000-0000-000000000001'
 }) => {
   const [hoursFilter, setHoursFilter] = useState(24);
   const [alerts, setAlerts] = useState<ResolvedAlert[]>([]);
@@ -47,11 +51,7 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
   const [statusChanges, setStatusChanges] = useState<StatusChange[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadActivity();
-  }, [hoursFilter]);
-
-  const loadActivity = async () => {
+  const loadActivity = useCallback(async () => {
     console.log('ActivityLog: Loading activity for user:', userId, 'hours filter:', hoursFilter);
     setLoading(true);
     try {
@@ -75,7 +75,11 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, hoursFilter]);
+
+  useEffect(() => {
+    loadActivity();
+  }, [loadActivity]);
 
   const getBadgeStyle = (type: string) => {
     const styles: Record<string, { bg: string; color: string }> = {
@@ -99,7 +103,82 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
   };
 
   if (loading) {
-    return <div style={{ padding: '40px', textAlign: 'center' }}>Loading activity...</div>;
+    return (
+      <FullPageSkeleton>
+        <div className="av-activity">
+          <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+            {/* Header Skeleton */}
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              marginBottom: '24px'
+            }}>
+              <div>
+                <div style={{ 
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: '28px',
+                  fontWeight: 700,
+                  color: '#BDE8F5',
+                  margin: 0
+                }}>
+                  <div style={{ width: '200px', height: '28px', background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)', backgroundSize: '200% 100%', animation: 'skeleton-shimmer 1.5s infinite', borderRadius: '4px' }} />
+                </div>
+                <div style={{ width: '350px', height: '14px', background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)', backgroundSize: '200% 100%', animation: 'skeleton-shimmer 1.5s infinite', borderRadius: '4px', marginTop: '4px' }} />
+              </div>
+            </div>
+
+            {/* Quick Stats Skeleton */}
+            <div style={{ display: 'flex', gap: '20px', marginBottom: '24px' }}>
+              {[1, 2, 3].map(i => <StatsPillSkeleton key={i} />)}
+            </div>
+
+            {/* Filters Skeleton */}
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+              <div style={{
+                width: '150px',
+                height: '36px',
+                background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)',
+                backgroundSize: '200% 100%',
+                animation: 'skeleton-shimmer 1.5s infinite',
+                borderRadius: '8px'
+              }} />
+            </div>
+
+            {/* Content Grid Skeleton */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: '1fr 1fr', 
+              gap: '20px'
+            }}>
+              {/* Resolved Alerts Skeleton */}
+              <div className="av-glass-card">
+                <CardHeaderSkeleton />
+                <div style={{ padding: 0, maxHeight: '500px', overflowY: 'auto' }}>
+                  {[1, 2, 3, 4, 5].map(i => <ActivityItemSkeleton key={i} />)}
+                </div>
+              </div>
+
+              {/* Maintenance Log Skeleton */}
+              <div className="av-glass-card">
+                <CardHeaderSkeleton />
+                <div style={{ padding: 0, maxHeight: '500px', overflowY: 'auto' }}>
+                  {[1, 2, 3, 4, 5].map(i => <ActivityItemSkeleton key={i} />)}
+                </div>
+              </div>
+            </div>
+
+            {/* Device Status Changes Skeleton */}
+            <div className="av-glass-card" style={{ marginTop: '20px' }}>
+              <CardHeaderSkeleton />
+              <div style={{ padding: 0, maxHeight: '400px', overflowY: 'auto' }}>
+                {[1, 2, 3, 4, 5].map(i => <ActivityItemSkeleton key={i} />)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </FullPageSkeleton>
+    );
   }
 
   return (

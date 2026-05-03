@@ -24,6 +24,7 @@ interface DeviceCardProps {
   userId: string;
   onStatusChange: (deviceId: string, status: string) => void;
   onMaintenanceLog: (deviceId: string, data: MaintenanceFormData) => void;
+  loadingDetails?: Set<string>;
 }
 
 interface MaintenanceFormData {
@@ -38,7 +39,140 @@ interface MaintenanceFormData {
   performed_by_name: string;
 }
 
-const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange, onMaintenanceLog }) => {
+const DeviceCardSkeleton: React.FC = () => {
+  return (
+    <div className="av-glass-card">
+      {/* Header Skeleton */}
+      <div style={{
+        padding: '16px 20px',
+        borderBottom: '1px solid rgba(189,232,245,0.08)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px'
+      }}>
+        <div style={{
+          width: '12px',
+          height: '12px',
+          borderRadius: '50%',
+          background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)',
+          backgroundSize: '200% 100%',
+          animation: 'skeleton-shimmer 1.5s infinite'
+        }} />
+        <div style={{ flex: 1 }}>
+          <div style={{ 
+            width: '140px', 
+            height: '16px', 
+            background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)',
+            backgroundSize: '200% 100%',
+            animation: 'skeleton-shimmer 1.5s infinite',
+            borderRadius: '4px',
+            marginBottom: '6px'
+          }} />
+          <div style={{ 
+            width: '100px', 
+            height: '12px', 
+            background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)',
+            backgroundSize: '200% 100%',
+            animation: 'skeleton-shimmer 1.5s infinite',
+            borderRadius: '4px'
+          }} />
+        </div>
+        <div style={{
+          width: '80px',
+          height: '24px',
+          background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)',
+          backgroundSize: '200% 100%',
+          animation: 'skeleton-shimmer 1.5s infinite',
+          borderRadius: '12px'
+        }} />
+      </div>
+
+      {/* Body Skeleton */}
+      <div style={{ padding: '20px' }}>
+        {/* Info rows skeleton */}
+        <div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
+          <div style={{ 
+            width: '60px', 
+            height: '13px', 
+            background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)',
+            backgroundSize: '200% 100%',
+            animation: 'skeleton-shimmer 1.5s infinite',
+            borderRadius: '4px'
+          }} />
+          <div style={{ 
+            width: '120px', 
+            height: '13px', 
+            background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)',
+            backgroundSize: '200% 100%',
+            animation: 'skeleton-shimmer 1.5s infinite',
+            borderRadius: '4px'
+          }} />
+        </div>
+        
+        <div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
+          <div style={{ 
+            width: '60px', 
+            height: '13px', 
+            background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)',
+            backgroundSize: '200% 100%',
+            animation: 'skeleton-shimmer 1.5s infinite',
+            borderRadius: '4px'
+          }} />
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <div style={{ 
+              width: '60px', 
+              height: '20px', 
+              background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)',
+              backgroundSize: '200% 100%',
+              animation: 'skeleton-shimmer 1.5s infinite',
+              borderRadius: '10px'
+            }} />
+            <div style={{ 
+              width: '70px', 
+              height: '20px', 
+              background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)',
+              backgroundSize: '200% 100%',
+              animation: 'skeleton-shimmer 1.5s infinite',
+              borderRadius: '10px'
+            }} />
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
+          <div style={{ 
+            width: '80px', 
+            height: '13px', 
+            background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)',
+            backgroundSize: '200% 100%',
+            animation: 'skeleton-shimmer 1.5s infinite',
+            borderRadius: '4px'
+          }} />
+          <div style={{ 
+            width: '100px', 
+            height: '13px', 
+            background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)',
+            backgroundSize: '200% 100%',
+            animation: 'skeleton-shimmer 1.5s infinite',
+            borderRadius: '4px'
+          }} />
+        </div>
+
+        {/* Button skeleton */}
+        <div style={{
+          width: '100%',
+          height: '40px',
+          background: 'linear-gradient(90deg, rgba(189,232,245,0.1) 25%, rgba(189,232,245,0.2) 50%, rgba(189,232,245,0.1) 75%)',
+          backgroundSize: '200% 100%',
+          animation: 'skeleton-shimmer 1.5s infinite',
+          borderRadius: '8px',
+          marginTop: '16px'
+        }} />
+      </div>
+    </div>
+  );
+};
+
+const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange, onMaintenanceLog, loadingDetails }) => {
   const [showMaintenanceForm, setShowMaintenanceForm] = useState(false);
   const [maintenanceData, setMaintenanceData] = useState<MaintenanceFormData>({
     maintenance_type: '',
@@ -462,7 +596,7 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
         )}
 
         {/* Maintenance History */}
-        {device.maintenanceHistory && device.maintenanceHistory.length > 0 && (
+        {device.maintenanceHistory && device.maintenanceHistory.length > 0 ? (
           <div style={{ marginTop: '16px' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, color: '#BDE8F5', marginBottom: '10px' }}>
               📋 Recent Maintenance History
@@ -499,7 +633,34 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, userId, onStatusChange,
               </div>
             ))}
           </div>
-        )}
+        ) : loadingDetails?.has(device.device_id) ? (
+          <div style={{ marginTop: '16px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 600, color: '#BDE8F5', marginBottom: '10px' }}>
+              📋 Maintenance History
+            </div>
+            <div style={{
+              padding: '10px',
+              background: 'rgba(189,232,245,0.05)',
+              borderRadius: '8px',
+              border: '1px solid rgba(189,232,245,0.1)',
+              fontSize: '12px',
+              color: 'rgba(189,232,245,0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <div style={{
+                width: '12px',
+                height: '12px',
+                borderRadius: '50%',
+                border: '2px solid rgba(189,232,245,0.3)',
+                borderTopColor: '#BDE8F5',
+                animation: 'spin 1s linear infinite'
+              }} />
+              Loading maintenance history...
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -515,6 +676,7 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({ userId = '00000000-
   void userName;
   const [devices, setDevices] = useState<DeviceWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingDetails, setLoadingDetails] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadDevices();
@@ -527,11 +689,33 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({ userId = '00000000-
       const devicesData = await getDevicesWithStatus();
       console.log('DeviceManagement: Fetched devices:', devicesData.length);
       
-      // Load maintenance history for each device
+      // Set devices with basic info first (no maintenance history)
+      setDevices(devicesData);
+      
+      // Then load maintenance history progressively
+      const deviceIds = devicesData.map(d => d.device_id);
+      setLoadingDetails(new Set(deviceIds));
+      
+      // Load maintenance history for each device in parallel
       const devicesWithHistory = await Promise.all(
         devicesData.map(async (device) => {
-          const history = await getDeviceMaintenanceHistory(device.device_id);
-          return { ...device, maintenanceHistory: history };
+          try {
+            const history = await getDeviceMaintenanceHistory(device.device_id);
+            setLoadingDetails(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(device.device_id);
+              return newSet;
+            });
+            return { ...device, maintenanceHistory: history };
+          } catch (error) {
+            console.error(`Failed to load maintenance history for device ${device.device_id}:`, error);
+            setLoadingDetails(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(device.device_id);
+              return newSet;
+            });
+            return { ...device, maintenanceHistory: [] };
+          }
         })
       );
       
@@ -566,7 +750,84 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({ userId = '00000000-
   };
 
   if (loading) {
-    return <div style={{ padding: '40px', textAlign: 'center' }}>Loading devices...</div>;
+    return (
+      <>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+          
+          .av-devices {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #0a1f42 0%, #0F2854 50%, #1C4D8D 100%);
+            min-height: 100vh;
+            padding: 24px;
+            position: relative;
+          }
+          
+          .av-devices::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234988C4' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+          }
+          
+          .av-glass-card {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(189, 232, 245, 0.12);
+            border-radius: 14px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+          }
+          
+          @keyframes skeleton-shimmer {
+            0% {
+              background-position: -200% 0;
+            }
+            100% {
+              background-position: 200% 0;
+            }
+          }
+        `}</style>
+      
+      <div className="av-devices">
+        <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          {/* Header */}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            marginBottom: '24px'
+          }}>
+            <div>
+              <h1 style={{ 
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: '28px',
+                fontWeight: 700,
+                color: '#BDE8F5',
+                margin: 0
+              }}>
+                🔧 Device Management
+              </h1>
+              <p style={{ color: 'rgba(189,232,245,0.6)', fontSize: '14px', marginTop: '4px' }}>
+                Maintain, repair, and track device health
+              </p>
+            </div>
+          </div>
+
+          {/* Skeleton Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
+            gap: '20px'
+          }}>
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <DeviceCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
+    );
   }
 
   return (
@@ -596,6 +857,24 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({ userId = '00000000-
           border: 1px solid rgba(189, 232, 245, 0.12);
           border-radius: 14px;
           box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        @keyframes skeleton-shimmer {
+          0% {
+            background-position: -200% 0;
+          }
+          100% {
+            background-position: 200% 0;
+          }
+        }
+        
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
       `}</style>
       
@@ -637,6 +916,7 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({ userId = '00000000-
                 userId={userId}
                 onStatusChange={handleStatusChange}
                 onMaintenanceLog={handleMaintenanceLog}
+                loadingDetails={loadingDetails}
               />
             ))}
           </div>
