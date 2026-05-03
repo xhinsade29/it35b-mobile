@@ -160,3 +160,72 @@ export async function getDeviceStatusChanges(hours: number = 24): Promise<Status
     location_name: device.locations?.location_name || 'Unknown'
   })) || [];
 }
+
+// Subscribe to real-time activity updates
+export function subscribeToActivityChanges(
+  userId: number | string,
+  callback: () => void
+) {
+  if (!supabase) {
+    console.log('Mock: Real-time activity subscriptions not available');
+    return { unsubscribe: () => {} };
+  }
+  
+  const userIdStr = String(userId);
+  
+  // Create a unique channel name for this user
+  const channel = supabase.channel(`activity-${userIdStr}`);
+  
+  // Subscribe to alerts table changes (when alerts are resolved by this user)
+  channel.on(
+    'postgres_changes',
+    {
+      event: '*',
+      schema: 'public',
+      table: 'alerts',
+      filter: `resolved_by=eq.${userIdStr}`
+    },
+    (payload) => {
+      console.log('Activity: Alert change received:', payload);
+      callback();
+    }
+  );
+  
+  // Subscribe to maintenance_logs table changes
+  channel.on(
+    'postgres_changes',
+    {
+      event: '*',
+      schema: 'public',
+      table: 'maintenance_logs',
+      filter: `performed_by=eq.${userIdStr}`
+    },
+    (payload) => {
+      console.log('Activity: Maintenance log change received:', payload);
+      callback();
+    }
+  );
+  
+  // Subscribe to device status changes
+  channel.on(
+    'postgres_changes',
+    {
+      event: '*',
+      schema: 'public',
+      table: 'devices'
+    },
+    (payload) => {
+      console.log('Activity: Device change received:', payload);
+      callback();
+    }
+  );
+  
+  channel.subscribe();
+  
+  return {
+    unsubscribe: () => {
+      console.log('Activity: Cleaning up activity subscriptions...');
+      channel.unsubscribe();
+    }
+  };
+}

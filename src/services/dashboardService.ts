@@ -479,3 +479,33 @@ export function subscribeToAlerts(callback: (alert: Alert) => void) {
     )
     .subscribe();
 }
+
+// Subscribe to real-time device status changes
+export function subscribeToDeviceChanges(callback: (device: Device) => void) {
+  if (!supabase) {
+    console.log('Mock: Real-time device subscriptions not available');
+    return { unsubscribe: () => {} };
+  }
+  
+  return supabase
+    .channel('devices-channel')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'devices'
+      },
+      (payload) => {
+        console.log('Device change received:', payload);
+        // Fetch full device details and call callback
+        if (payload.new && (payload.new as any).device_id) {
+          getDevicesWithStatus().then(devices => {
+            const newDevice = devices.find(d => d.device_id === (payload.new as any).device_id);
+            if (newDevice) callback(newDevice);
+          });
+        }
+      }
+    )
+    .subscribe();
+}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { formatDate, capitalizeWords } from './utils/dashboard';
-import { getMyResolvedAlerts, getMyMaintenanceLogs, getDeviceStatusChanges } from './services/activityService';
+import { getMyResolvedAlerts, getMyMaintenanceLogs, getDeviceStatusChanges, subscribeToActivityChanges } from './services/activityService';
 import {
   FullPageSkeleton,
   ActivityItemSkeleton,
@@ -81,6 +81,21 @@ const ActivityLog: React.FC<ActivityLogProps> = ({
   useEffect(() => {
     loadActivity();
   }, [loadActivity]);
+
+  // Real-time subscription for activity updates
+  useEffect(() => {
+    console.log('ActivityLog: Setting up real-time activity subscription...');
+    
+    const subscription = subscribeToActivityChanges(userId, () => {
+      console.log('ActivityLog: Real-time update received, refreshing data...');
+      loadActivity();
+    });
+
+    return () => {
+      console.log('ActivityLog: Cleaning up activity subscription...');
+      subscription.unsubscribe();
+    };
+  }, [userId, loadActivity]);
 
   const getBadgeStyle = (type: string) => {
     const styles: Record<string, { bg: string; color: string }> = {

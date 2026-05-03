@@ -22,7 +22,9 @@ import {
   getOperatorStats,
   getMyActivityHistory,
   acknowledgeAlert,
-  acknowledgeAllAlerts
+  acknowledgeAllAlerts,
+  subscribeToAlerts,
+  subscribeToDeviceChanges
 } from './services/dashboardService';
 import {
   FullPageSkeleton,
@@ -347,6 +349,38 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   useEffect(() => {
     loadData();
+  }, [loadData]);
+
+  // Real-time subscription for alerts
+  useEffect(() => {
+    console.log('Dashboard: Setting up real-time alert subscription...');
+    
+    const subscription = subscribeToAlerts((newAlert) => {
+      console.log('Dashboard: Real-time alert received:', newAlert);
+      // Refresh all dashboard data when alert changes
+      loadData();
+    });
+
+    return () => {
+      console.log('Dashboard: Cleaning up alert subscription...');
+      subscription.unsubscribe();
+    };
+  }, [loadData]);
+
+  // Real-time subscription for device status changes
+  useEffect(() => {
+    console.log('Dashboard: Setting up real-time device subscription...');
+    
+    const subscription = subscribeToDeviceChanges((newDevice) => {
+      console.log('Dashboard: Real-time device change received:', newDevice);
+      // Refresh all dashboard data when device status changes
+      loadData();
+    });
+
+    return () => {
+      console.log('Dashboard: Cleaning up device subscription...');
+      subscription.unsubscribe();
+    };
   }, [loadData]);
 
   const handleAcknowledge = async (alertId: number) => {
